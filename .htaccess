@@ -1,0 +1,55 @@
+Options -Indexes
+
+RewriteEngine on
+
+RewriteRule \.ini$ - [R=403]
+
+RewriteRule ^analysis_selection$ analysis_selection.php [L]
+RewriteRule ^data_sources$ data_sources.php [L]
+RewriteRule ^database_administration$ database_administration.php [L]
+RewriteRule ^user_administration$ user_administration.php [L]
+RewriteRule ^database_summary$ database_summary.php [L]
+RewriteRule ^databases$ databases.php [L]
+RewriteRule ^download_pedigree$ download_pedigree.php [L]
+RewriteRule ^familial_filters$ familial_filters.php [L]
+RewriteRule ^gbs_administration$ gbs_administration.php [L]
+RewriteRule ^gbs_query$ gbs_query.php [L]
+RewriteRule ^gbs_results$ gbs_results.php [L]
+RewriteRule ^gbs$ gbs.php [L]
+RewriteRule ^gene_list_administration$ gene_list_administration.php [L]
+RewriteRule ^home$ index.php [L]
+RewriteRule ^login$ login.php [L]
+RewriteRule ^logout$ logout.php [L]
+RewriteRule ^modify_pedigree$ modify_pedigree.php [L]
+RewriteRule ^query$ query.php [L]
+RewriteRule ^results$ results.php [L]
+RewriteRule ^variant_info$ variant_info.php [L]
+
+RewriteRule ^actions/action_analysis_types$ actions/action_analysis_types.php [L]
+RewriteRule ^actions/action_database_administration$ actions/action_database_administration.php [L]
+RewriteRule ^actions/action_delete_genome_blocks$ actions/action_delete_genome_blocks.php [L]
+RewriteRule ^actions/action_gbs_analysis$ actions/action_gbs_analysis.php [L]
+RewriteRule ^actions/action_gene_list_administration$ actions/action_gene_list_administration.php [L]
+RewriteRule ^actions/action_import_genome_blocks$ actions/action_import_genome_blocks.php [L]
+RewriteRule ^actions/action_log_in$ actions/action_log_in.php [L]
+RewriteRule ^actions/action_run_query$ actions/action_run_query.php [L]
+RewriteRule ^actions/action_store_genome_blocks$ actions/action_store_genome_blocks.php [L]
+RewriteRule ^actions/action_user_administration$ actions/action_user_administration.php [L]
+
+# When the request is using HTTPS
+RewriteCond %{HTTPS} =on
+
+        # Redirect to http if the page requested is igv_link.php, this is because this page needs to load an http:// in an <iframe> which won't work if the page is loaded with https://
+        RewriteCond %{REQUEST_URI} ^/igv_link.php.*
+
+        # Redirect to HTTP
+        RewriteRule ^ http://%{SERVER_NAME}%{REQUEST_URI} [END,QSA,R=permanent]
+
+# When the request is using HTTP
+RewriteCond %{HTTPS} !=on
+
+        # Don't redirect to https if the page requested is igv_link.php
+        RewriteCond %{REQUEST_URI} !^/igv_link.php.*
+
+        # Otherwise redirect to HTTPS
+        RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,QSA,R=permanent]

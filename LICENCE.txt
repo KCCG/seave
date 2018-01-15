@@ -1,0 +1,75 @@
+SEAVE SOFTWARE LICENCE AGREEMENT
+
+PLEASE READ THIS SOFTWARE LICENCE AGREEMENT CAREFULLY BEFORE USING THE SEAVE SOFTWARE. BY USING THE SEAVE SOFTWARE YOU (THE LICENSEE) AGREE THAT THIS AGREEMENT IS ENFORCEABLE LIKE ANY WRITTEN CONTRACT SIGNED BY YOU AND THAT YOU AGREE THAT YOUR USE IS SUBJECT TO THE FOLLOWING TERMS. IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT, DO NOT INSTALL AND/OR USE THE SOFTWARE.
+
+1. Terms of licence
+	1.1 Subject to the terms of this Agreement, the Licensor grants a non-exclusive, non-transferable licence to the Licensee to download, install, use and run the Seave Software for research, education or training use and for no other purposes (the Permitted Purpose). The Licensee is expressly excluded from using Seave Software as part of a clinical diagnostic workflow or commercial use of any type.
+	1.2 Subject to clause 2, this Agreement does not entitle the Licensee to copy, redistribute, sublicense or provide access to Seave Software, in whole or in part, to any other person without the express written permission of the Licensor.
+
+2. Users
+	2.1 The persons who will be conducting the Permitted Purposes on behalf of or at the invitation of the Licensee including academics and researchers of the Licensee (the Users) will be allowed access to Seave Software, provided that the Licensee ensures that the Users agree to the terms of this Agreement and use Seave Software only for Permitted Purposes.
+	2.2 The Licensee is responsible for the use of Seave Software by the Users and must manage, supervise and exercise control over Seave Software at all times.
+
+3. No Support and Installation
+	3.1 The Licensor is not required to provide installation support or user support in relation to Seave Software.
+	3.2 The Licensor may provide installation support or user support to the Licensee as agreed outside the terms of this Agreement.
+
+4. No representations or warranties
+	4.1 Seave Software is provided "as is".
+	4.2 The Licensor makes no representations or warranties of any kind concerning Seave Software, express or implied, including, for example, warranties regarding merchantability, fitness for purpose, non-infringement, absence of defects and conformity with description.
+	4.3 If the Licensor cannot exclude liability for breach of a condition or warranty or if the Licensor breaches a consumer guarantee provided for in the Australian Consumer Law 2010 (Cth) then Licensor's liability for the breach is limited at its election to:
+		(a) in the case of goods, replacing the goods or paying the cost of replacing the goods;
+		(b) in the case of services, resupplying the services or paying the cost of resupplying the services.
+
+5. Intellectual Property Rights
+	5.1 The Licensee acknowledges that Seave Software may be the subject of a patent application by the Licensor.  Except as provided in this Agreement, the Licensee agrees that it has no express or implied licence or other right to any patents, patent applications, trade secrets or other proprietary rights of the Licensor.  In particular, no express or implied licence or other right is provided to use Seave Software for any commercial purpose.
+	5.2 Seave Software has been developed by the Licensor using some open-source software packages which are subject to their own licences and copyright. These open source software packages and the applicable licences are identified in Schedule One. The applicable licences are available within Seave Software.
+	5.3 The Licensor makes no warranties about ownership of the Intellectual Property Rights in Seave Software. The Licensor will not be liable to the Licensee for any loss, costs, expenses, demands or liability, whether direct or indirect, including loss of data, loss of goodwill, loss of reputation, or loss of opportunity, arising out of a claim by a third party alleging infringement of their Intellectual Property Rights by the Licensee, the Users or any third party that the Licensee has allowed access to Seave Software.
+
+6. Liability and Indemnity
+	The Licensor shall be under no liability to the Licensee in respect of any loss or damage which may be suffered or incurred or which may arise directly or indirectly in respect of the use of Seave Software or its installation on the Licensees server, including, but not limited to loss of data, loss of goodwill, loss of reputation or loss arising from the misuse, destructions or unauthorised use of data.
+
+7. Term, Termination and Consequences of Termination
+	7.1 This Agreement is effective until terminated.
+	7.2 Licensee's rights under this Agreement will terminate immediately without notice from Licensor in the event that Licensee breaches a term of this Agreement.
+	7.3 Upon termination of this Agreement, the Licensee must ensure that all copies of Seave Software that it holds are destroyed.
+
+8. Amendment
+	8.1 This Agreement may only be amended by the Licensor in writing.
+
+9. Assignment and novation
+	9.1 The benefit of this Agreement shall not be assigned by the Licensee without the Licensor's written consent.
+	9.2 The Licensor may consent to the assignment or novation of this Agreement by the Licensee subject to such conditions as it chooses to impose.
+
+10. Entire agreement
+	10.1 This Agreement constitutes the entire agreement between the Parties. This Agreement supersedes all prior statements, representations and agreements, whether oral or in writing.
+
+11. Severability
+	11.1 If any provision of this Agreement is held invalid, unenforceable or illegal for any reason, the Agreement shall remain otherwise in full force apart from such provisions which shall at the election of the Licensor, be read down to the extent necessary to remove such invalidity, unenforceability or illegality or be deemed deleted.
+
+12. Governing law
+	12.1 This Agreement shall be governed by and construed according to the law of New South Wales, Australia.
+
+13. Definitions
+	In this Agreement, unless the contrary intention appears:
+	"Agreement" means this Agreement for the licensing and installation of Seave Software;
+	"Effective Date" means the date the Seave Software was downloaded;
+	"Intellectual Property Rights" includes rights pertaining to copyright, trade mark, design, patent, semiconductor or circuit layout rights and the right to keep certain information confidential;
+	"Licensee" means the individual, firm, partnership, company, corporation, association, organisation, government, government agency or other legal entity that downloads, installs and uses the Seave Software;
+	"Licensor" means The GARVAN INSTITUTE OF MEDICAL RESEARCH (ABN 62 330 391 937) of 384 Victoria Street, Darlinghurst, New South Wales, 2010, Australia;
+	"Seave Software" means the software applications available in this repository or directory tree and any packaged versions (e.g. machine images) developed by the Licensor and which are the subject of this Agreement; and
+	"Party" means either the Licensor or the Licensee as the context dictates.
+
+
+
+Schedule One
+	Software	Relevant Licence	URL
+	GEMINI	MIT	https://github.com/arq5x/gemini
+	BEDTools	GPL v2	https://github.com/arq5x/bedtools2
+	PHP	PHP Licence v3.01	http://php.net/license/index.php
+	Apache2	Apache Licence v2	https://www.apache.org/licenses/
+	MySQL	GPL v2	https://downloads.mysql.com/docs/licenses/mysqld-5.7-gpl-en.pdf
+	Ubuntu	Canonical’s IPRights Policy	https://www.ubuntu.com/legal/terms-and-policies/intellectual-property-policy
+	Pixelarity HTML5 template	Pixelarity Licence Agreement	https://pixelarity.com/license
+	DataTables	MIT	https://datatables.net/license/mit
+	Selenium	Apache 2.0	http://www.seleniumhq.org/about/license.jsp

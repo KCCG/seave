@@ -1,0 +1,1 @@
+This folder houses query results and their associated errors and commands used to generate them.

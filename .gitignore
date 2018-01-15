@@ -1,0 +1,5 @@
+.DS_Store
+
+temp/*.err
+temp/*.gem
+temp/*.tsv
