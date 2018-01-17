@@ -24,5 +24,10 @@ The current PDF version of the Usage Guide is available here: https://github.com
 * SQL files required to set up the Seave database schema and scripts to import data from annotation sources into the Seave MySQL annotation databases: https://github.com/KCCG/seave-databases-annotations
 * Seave documentation: https://github.com/KCCG/seave-documentation
 
+# Seave annotations
+Seave relies on many databases and prediction scores to annotate variants with pathogenicity and allele frequency information. These generously make their data free for research use. If you use any of these annotations to prioritise variants, we ask that you cite the relevant source in your publications.
+
+You can find descriptions and versions of all annotations used by your Seave installation on the Data Sources page, accessible from the top menu.
+
 # Licence
 Please consult LICENCE.txt for Seave licensing information. Seave is licensed for research and training purposes only, all commercial usage is forbidden. Please contact [Mark Cowley](mailto:m.cowley@garvan.org.au) and [Velimir Gayevskiy](mailto:v.gayevskiy@garvan.org.au) with any commercial enquiries.
