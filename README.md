@@ -18,7 +18,15 @@ The current PDF version of the Usage Guide is available here: https://github.com
 **We are still in the process of finalising the administrator guide.** This file will be updated once the first version is available.
 
 # Installing Seave using the Amazon AMI
-**We are currently in the process of finalising the AMI.** Once it is public this file will be updated with instructions for how to access it.
+Using the Seave AMI (Amazon Machine Image) that we have prepared is the recommended method of installing your own copy of Seave. 
+
+The AMI is used to create a personal Seave server in the Amazon Cloud, known as Amazon Web Services (AWS). This server has all Seave code and required software pre-configured for you and includes demo data and accounts so you can get started right away.
+
+**IMPORTANT: prior to launching your own Seave server, please read the Administrator Guide for important first-time setup information. The default server uses passwords that are public and these must be changed immediately or your Seave is extremely vulnerable.**
+
+Running and maintaining a server on AWS is not an easy task if you don't have experience with Linux and sysadmin. We recommend engaging with a bioinformatician or other IT professional if you are uncomfortable.
+
+The Seave AMI can be found in 2 AWS regions: Asia Pacific (Sydney) and US East (N. Virginia). To find it, navigate to the AMIs section of your AWS interface and change "Owned by me" to "Public images" in the dropdown to the left of the search box. After this, search for 'SeaveAMI' in the search box and the image should appear. You can now start your own instance (server) using this image.
 
 # Related repositories
 * SQL files required to set up the Seave database schema and scripts to import data from annotation sources into the Seave MySQL annotation databases: https://github.com/KCCG/seave-databases-annotations
