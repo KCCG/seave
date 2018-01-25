@@ -61,6 +61,9 @@
 							
 							# Sequenza-specific errors
 							if_set_display_error("gbs_import_invalid_sequenza_output_file_format", "You must upload the output file from Sequenza ending with \"segments.txt\".");
+
+							# PURPLE-specific errors
+							if_set_display_error("gbs_import_invalid_purple_output_file_format", "You must upload the output file from PURPLE ending with \"purple.cnv\".");
 							
 							# ROHmer-specific errors
 							if_set_display_error("gbs_import_invalid_rohmer_output_file_format", "You must upload the BED file output from ROHmer.");
@@ -153,6 +156,8 @@
 										echo "<label for=\"label_lumpy\">LUMPY</label>";
 										echo "<input type=\"radio\" id=\"label_sequenza\" name=\"method\" value=\"Sequenza\" onclick=\"javascript:showdiv('sequenza');\">";
 										echo "<label for=\"label_sequenza\">Sequenza</label>";
+										echo "<input type=\"radio\" id=\"label_purple\" name=\"method\" value=\"PURPLE\" onclick=\"javascript:showdiv('purple');\">";
+										echo "<label for=\"label_purple\">PURPLE</label>";
 										echo "<input type=\"radio\" id=\"label_rohmer\" name=\"method\" value=\"ROHmer\" onclick=\"javascript:showdiv('rohmer');\">";
 										echo "<label for=\"label_rohmer\">ROHmer</label>";
 										echo "<input type=\"radio\" id=\"label_varpipesv\" name=\"method\" value=\"VarpipeSV\" onclick=\"javascript:showdiv('varpipesv');\">";
@@ -174,6 +179,11 @@
 												echo "<div class=\"selection\" id=\"sequenza\" style=\"display: none;\">";
 													echo "<input type=\"text\" name=\"import_sample_sequenza\">";
 													echo "<p style=\"font-size:75%;\">Enter the sample name Sequenza was run on above.</p>";
+												echo "</div>";
+
+												echo "<div class=\"selection\" id=\"purple\" style=\"display: none;\">";
+													echo "<input type=\"text\" name=\"import_sample_purple\">";
+													echo "<p style=\"font-size:75%;\">Enter the sample name PURPLE was run on above.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"rohmer\" style=\"display: none;\">";
@@ -225,6 +235,10 @@
 										
 										echo "<div class=\"selection\" id=\"sequenza\" style=\"display: none;\">";
 											echo "<p style=\"font-size:75%;\">Select the segments.txt file.</p>";
+										echo "</div>";
+
+										echo "<div class=\"selection\" id=\"purple\" style=\"display: none;\">";
+											echo "<p style=\"font-size:75%;\">Select the purple.cnv file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"manta\" style=\"display: none;\">";

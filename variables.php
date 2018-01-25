@@ -119,6 +119,13 @@ $GLOBALS['default_sequenza_columns'] = array();
 array_push($GLOBALS['default_sequenza_columns'], "CN.A", "CN.B", "AF.B", "DP.ratio");
 
 #############################################
+# DEFAULT PURPLE COLUMNS TO SAVE
+#############################################
+
+$GLOBALS['default_purple_columns'] = array();
+array_push($GLOBALS['default_purple_columns'], "bafCount", "observedBAF", "actualBAF", "segmentStartSupport", "segmentEndSupport", "method");
+
+#############################################
 # WHITELISTED GBS RESULTS PAGE COLUMNS
 #############################################
 

@@ -435,7 +435,7 @@ function genome_blocks_table() {
 				
 				echo "<th>Sample(s)</th>";
 				
-				if (in_array($_SESSION["gbs_import_method"], array("CNVnator", "CNVkit", "Sequenza"))) {
+				if (in_array($_SESSION["gbs_import_method"], array("CNVnator", "CNVkit", "Sequenza", "PURPLE"))) {
 					echo "<th>Copy Number</th>";
 				} elseif (in_array($_SESSION["gbs_import_method"], array("VarpipeSV", "Manta", "LUMPY"))) {
 					echo "<th>Event Type</th>";

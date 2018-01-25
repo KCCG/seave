@@ -148,8 +148,8 @@ function import_block_into_gbs($chromosome, $start, $end, $method, $block_value)
 	// If the block is from ROHmer which only calls RoH events
 	} elseif ($block_value == "RoH") {
 		array_push($parameter_values, "roh");
-	// If the block is from CNVnator or Sequenza, work out the event type from the block copy number
-	} elseif (in_array($method, array("CNVnator", "Sequenza", "CNVkit"))) {
+	// If the block is from a method that includes a copy number estimate, work out the event type from the block copy number
+	} elseif (in_array($method, array("CNVnator", "Sequenza", "CNVkit", "PURPLE"))) {
 		// If the event is a deletion
 		if ($block_value < 2) {
 			array_push($parameter_values, "deletion");
@@ -169,7 +169,7 @@ function import_block_into_gbs($chromosome, $start, $end, $method, $block_value)
 	if (in_array($method, array("LUMPY", "VarpipeSV", "Manta", "ROHmer"))) {
 		array_push($parameter_values, NULL);
 	// If the method is produces a copy number estimate
-	} elseif (in_array($method, array("CNVnator", "Sequenza", "CNVkit"))) {
+	} elseif (in_array($method, array("CNVnator", "Sequenza", "CNVkit", "PURPLE"))) {
 		// Store the numeric copy number estimate
 		array_push($parameter_values, $block_value);
 	} else {
