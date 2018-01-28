@@ -280,6 +280,70 @@
 		gbs_administration_page_redirect();
 
 	#############################################
+	# PURPLE INPUT FILE
+	#############################################
+
+	} elseif ($_POST["method"] == "PURPLE") {
+		// If no sample name was submitted
+		if (!isset($_POST["import_sample_purple"])) {
+			gbs_administration_page_redirect("missing_posts");
+		}
+		
+		// If no sample name was entered
+		if (strlen($_POST["import_sample_purple"]) == 0) {
+			gbs_administration_page_redirect("missing_sample_name");
+		}
+		
+		// Check whether there is already data for the sample and method in the GBS and fail if so		
+		$already_in_gbs = is_sample_and_software_in_gbs($_POST["import_sample_purple"], $_POST["method"]);
+		
+		if ($already_in_gbs === true) {
+			gbs_administration_page_redirect("gbs_data_already_exists");
+		} elseif ($already_in_gbs === false) {
+			gbs_administration_page_redirect("cant_tell_if_gbs_data_already_exists");
+		}
+		
+		// Check file extension - only allow "*purple.cnv" format from PURPLE
+		if (!preg_match("/purple.cnv$/", $_FILES["genomeblocks"]["name"])) {
+			gbs_administration_page_redirect("invalid_purple_output_file_format");
+		}
+		
+		// Open the genome blocks file for parsing
+		$genome_blocks_file = fopen($_FILES['genomeblocks']['tmp_name'], "r");
+		
+		// If the genome blocks file couldn't be opened
+		if ($genome_blocks_file === false) {
+			gbs_administration_page_redirect("cant_open_genome_blocks_file");
+		}
+		
+		// Parse the data file and save the blocks
+		$genome_block_store = gbs_import_purple($genome_blocks_file, $_POST["import_sample_purple"]);
+		
+		// If there was a failure parsing
+		if ($genome_block_store === false) {
+			gbs_administration_page_redirect();
+		}
+		
+		// If no blocks were found
+		if (count($genome_block_store) == 0) {
+			gbs_administration_page_redirect("no_valid_data");
+		}
+		
+		// Save the genome blocks
+		log_gbs_import_info("genome_blocks", $genome_block_store);
+		
+		// Save the the unique annotation tags
+		log_gbs_import_info("unique_annotation_tags", $GLOBALS['default_purple_columns']);
+		
+		// Save the sample name
+		log_gbs_import_info("samples", array($_POST["import_sample_purple"]));
+		
+		// Save the method
+		log_gbs_import_info("method", $_POST["method"]);
+		
+		gbs_administration_page_redirect();
+
+	#############################################
 	# VarpipeSV INPUT FILE
 	#############################################
 

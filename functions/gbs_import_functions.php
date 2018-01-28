@@ -280,6 +280,78 @@ function gbs_import_sequenza($open_data_file_handle, $sample) {
 }
 
 #############################################
+# GBS IMPORT FROM PURPLE FILE
+#############################################
+
+function gbs_import_purple($open_data_file_handle, $sample) {
+	// Create an array to store block information
+	$genome_block_store = array();
+	
+	// Go through the file line by line
+	while (($line = fgets($open_data_file_handle)) !== false) {
+		// Split the row into an array by column
+		$columns = explode("\t", $line);
+		
+		// If it's an empty line, ignore it
+		if (count($columns) == 0) {
+			continue;
+		}
+		
+		// Ignore the header line
+		if ($columns[0] == "#chromosome") {
+			continue;
+		}
+		
+		// If the line does not have the expected number of columns, quit out and display it to the user
+		if (count($columns) != 10) {
+			// Save the line to display to the user
+			log_gbs_import_info("error", "A row in your PURPLE output file did not contain the right amount of columns, it should be 10. Line: ".$line);
+			
+			return false;
+		}
+		
+		// Remove space/newline characters from the 10th column (the last one which has \n at the end)
+		$columns[9] = preg_replace("/[\n\r\s]*/", "", $columns[9]);
+		
+		// Make sure the coordinate and copy number columns are numeric
+		if (!is_numeric($columns[1]) || !is_numeric($columns[2]) || !is_numeric($columns[3])) {
+			// Save the line to display to the user
+			log_gbs_import_info("error", "Found a line which contains one or more non-numeric values for coordinates or copy number. Line: ".$line);
+			
+			return false;
+		}
+					
+		// Save the current genome block ID, this is zero based so using count(<current block ids>) gets the next new one as count is 1 based
+		$current_genome_block_id = count($genome_block_store);
+		
+		// Save the block coordinates
+		$genome_block_store[$current_genome_block_id]["chromosome"] = $columns[0];
+		$genome_block_store[$current_genome_block_id]["start"] = $columns[1];
+		$genome_block_store[$current_genome_block_id]["end"] = $columns[2];
+		// Format: $genome_block_store[block id][chromosome/start/end] = <value>
+		
+		// Save the sample for the block
+		$genome_block_store[$current_genome_block_id]["samples"][] = $sample;
+		// Format: $genome_block_store[block id]["samples"] = <array of samples>
+		
+		// Save the copy number for the block (round to 2dp)
+		$genome_block_store[$current_genome_block_id]["event"] = round($columns[3], 2);
+		// Format: $genome_block_store[block id]["event"] = <value>
+		
+		// Save the annotations for the block
+		$genome_block_store[$current_genome_block_id]["annotations"]["bafCount"][$sample] = $columns[4];
+		$genome_block_store[$current_genome_block_id]["annotations"]["observedBAF"][$sample] = $columns[5];
+		$genome_block_store[$current_genome_block_id]["annotations"]["actualBAF"][$sample] = $columns[6];
+		$genome_block_store[$current_genome_block_id]["annotations"]["segmentStartSupport"][$sample] = $columns[7];
+		$genome_block_store[$current_genome_block_id]["annotations"]["segmentEndSupport"][$sample] = $columns[8];
+		$genome_block_store[$current_genome_block_id]["annotations"]["method"][$sample] = $columns[9];
+		// Format: $genome_block_store[block id]["annotations"][tag][sample] = <value>
+	}
+	
+	return $genome_block_store;
+}
+
+#############################################
 # GBS IMPORT FROM VarpipeSV FILE
 #############################################
 

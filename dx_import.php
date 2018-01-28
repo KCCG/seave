@@ -262,7 +262,7 @@
 		}
 		
 		// Make sure a sample name has been supplied for the methods that need it
-		if (!isset($_GET["sample_name"]) && in_array($_GET["method"], array("CNVnator", "ROHmer", "Sequenza", "CNVkit"))) {
+		if (!isset($_GET["sample_name"]) && in_array($_GET["method"], array("CNVnator", "ROHmer", "Sequenza", "PURPLE", "CNVkit"))) {
 			echo "Fail: missing sample name for GBS method that requires one";
 			
 			exit;
@@ -305,6 +305,12 @@
 		} elseif ($_GET["method"] == "Sequenza") {
 			if (!preg_match("/segments.txt$/", $_GET["url"]) && !preg_match("/segments.txt.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with segments.txt/segments.txt.gz for Sequenza file import";
+				
+				exit;
+			}
+		} elseif ($_GET["method"] == "PURPLE") {
+			if (!preg_match("/purple.cnv$/", $_GET["url"]) && !preg_match("/purple.cnv.gz$/", $_GET["url"])) {
+				echo "Fail: URL does not end with purple.cnv/purple.cnv.gz for PURPLE file import";
 				
 				exit;
 			}
@@ -516,6 +522,9 @@
 		} elseif ($_GET["method"] == "Sequenza") {
 			// Parse the data file and save the blocks
 			$genome_block_store = gbs_import_sequenza($genome_blocks_file, $samples[0]);
+		} elseif ($_GET["method"] == "PURPLE") {
+			// Parse the data file and save the blocks
+			$genome_block_store = gbs_import_purple($genome_blocks_file, $samples[0]);
 		} elseif ($_GET["method"] == "CNVkit") {
 			// Parse the data file and save the blocks
 			$genome_block_store = gbs_import_cnvkit($genome_blocks_file, $samples[0]);
