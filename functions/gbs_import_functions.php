@@ -320,11 +320,6 @@ function gbs_import_purple($open_data_file_handle, $sample) {
 			
 			return false;
 		}
-		
-		// Ignore all events that are too close to a copy number of 2
-		if ($columns[3] < 2.5 && $columns[3] > 1.5) {
-			continue;
-		}
 					
 		// Save the current genome block ID, this is zero based so using count(<current block ids>) gets the next new one as count is 1 based
 		$current_genome_block_id = count($genome_block_store);
