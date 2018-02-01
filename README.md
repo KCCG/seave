@@ -10,6 +10,11 @@ Seave addresses current gaps in existing software and was built to:
 * securely store, and share data between groups;
 * simple web based system for use by a broad range of researchers and clinicians.
 
+# Seave publication
+We have made a preprint of the Seave publication available on bioRxiv here: https://www.biorxiv.org/content/early/2018/01/31/258061
+
+We are in the process of publishing Seave in a peer-reviewed journal.
+
 # Seave documentation
 The documentation for Seave is housed in a separate repository and can be accessed via [http://documentation.seave.bio](http://documentation.seave.bio).
 
