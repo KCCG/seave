@@ -18,9 +18,9 @@ We are in the process of publishing Seave in a peer-reviewed journal.
 # Seave documentation
 The documentation for Seave is housed in a separate repository and can be accessed via [http://documentation.seave.bio](http://documentation.seave.bio).
 
-The current PDF version of the Usage Guide is available here: https://github.com/KCCG/seave-documentation/blob/master/Usage%20Guide.pdf
+The current PDF version of the Usage Guide is available here: [https://github.com/KCCG/seave-documentation/blob/master/Usage%20Guide.pdf](https://github.com/KCCG/seave-documentation/blob/master/Usage%20Guide.pdf)
 
-**We are still in the process of finalising the administrator guide.** This file will be updated once the first version is available.
+The current PDF version of the Administration Guide is available here: [https://github.com/KCCG/seave-documentation/raw/master/Administration%20Guide.pdf](https://github.com/KCCG/seave-documentation/raw/master/Administration%20Guide.pdf)
 
 # Installing Seave using the Amazon AMI
 Using the Seave AMI (Amazon Machine Image) that we have prepared is the recommended method of installing your own copy of Seave. 
