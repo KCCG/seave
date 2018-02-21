@@ -2,11 +2,13 @@
 			<div id="footer-wrapper">
 				<div id="copyright" class="container">
 					<ul class="menu">
-						For research use only. Not for use in diagnostic procedures.
+						<li>For research use only. Not for use in diagnostic procedures.</li>
 					</ul>
 					
 					<ul class="menu">
 						<li>&copy; 2018 Garvan Institute. All rights reserved.</li>
+						<li><a href="https://github.com/KCCG/seave">Code</a></li>
+						<li><a href="https://github.com/KCCG/seave-documentation">Documentation</a></li>
 						<li>Contact: <a href="mailto:v.gayevskiy@garvan.org.au">Vel</a></li>
 					</ul>
 				</div>
