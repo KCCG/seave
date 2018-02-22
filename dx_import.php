@@ -252,27 +252,60 @@
 	} elseif ($_GET["import_type"] == "GBS") {
 		
 		#############################################
+		# ONLY ALLOW ONE GBS IMPORT AT ONCE
+		#############################################
+		
+		// Note: the reason for this is that we have encountered errors with MySQL deadlocks and foreign key constraint fails where importing multiple methods for the same sample results in UPDATE and DELETE statements running at the same time and locking different tables or removing a key that is required by the other import; importing one at a time will mean these errors don't occur
+		
+		for ($i = 0; $i < 500; $i++) {
+			// If a current GBS import is already in progress
+			if (file_exists("/tmp/gbs_currently_importing_lock")) {
+				// Wait for 5 seconds
+				sleep(5);
+			} else {
+				// Create a temporary file indicating a GBS import is in progress
+				if ($output = fopen("/tmp/gbs_currently_importing_lock", "w")) {
+					fclose($output);
+					
+					// Break out of the for loop
+					break;
+				} else {
+					echo "Fail: could not create temporary file indicating GBS import in progress";
+					
+					exit;
+				}
+			}
+		}
+		
+		// If the number of delayed executions is 500 or greater (about 41 minutes of delays with a wait time of 5 seconds)
+		if ($i > 499) {
+			echo "Fail: too many delayed executions of importing data into the GBS, perhaps you launched too many long import jobs at once?";
+				
+			exit;
+		}
+		
+		#############################################
 		# MAKE SURE REQUIRED INFORMATION IS SUPPLIED
 		#############################################
 		
 		if (!isset($_GET["token"]) || !isset($_GET["url"]) || !isset($_GET["method"])) {
 			echo "Fail: missing required information";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		// Make sure a sample name has been supplied for the methods that need it
 		if (!isset($_GET["sample_name"]) && in_array($_GET["method"], array("CNVnator", "ROHmer", "Sequenza", "PURPLE", "CNVkit"))) {
 			echo "Fail: missing sample name for GBS method that requires one";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		// Make sure the sample name isn't empty
 		if (isset($_GET["sample_name"]) && $_GET["sample_name"] == "") {
 			echo "Fail: empty sample name";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		#############################################
@@ -283,7 +316,7 @@
 		if ($_GET["token"] != $GLOBALS["configuration_file"]["dx_import"]["gbs_import_token"]) {
 			echo "Fail: bad token";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		#############################################
@@ -294,54 +327,54 @@
 			if (!preg_match("/.bed$/", $_GET["url"]) && !preg_match("/.bed.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with .bed/.bed.gz for CNVnator file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "ROHmer") {
 			if (!preg_match("/.bed$/", $_GET["url"]) && !preg_match("/.bed.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with .bed/.bed.gz for ROHmer file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "Sequenza") {
 			if (!preg_match("/segments.txt$/", $_GET["url"]) && !preg_match("/segments.txt.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with segments.txt/segments.txt.gz for Sequenza file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "PURPLE") {
 			if (!preg_match("/purple.cnv$/", $_GET["url"]) && !preg_match("/purple.cnv.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with purple.cnv/purple.cnv.gz for PURPLE file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "VarpipeSV") {
 			if (!preg_match("/.vcf$/", $_GET["url"]) && !preg_match("/.vcf.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with .vcf/.vcf.gz for VarpipeSV file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "Manta") {
 			if (!preg_match("/somaticSV.vcf$/", $_GET["url"]) && !preg_match("/somaticSV.vcf.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with somaticSV.vcf/somaticSV.vcf.gz for Manta file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "CNVkit") {
 			if (!preg_match("/.cns$/", $_GET["url"]) && !preg_match("/.cns.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with .cns/.cns.gz for CNVkit file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} elseif ($_GET["method"] == "LUMPY") {
 			if (!preg_match("/.vcf$/", $_GET["url"]) && !preg_match("/.vcf.gz$/", $_GET["url"])) {
 				echo "Fail: URL does not end with .vcf/.vcf.gz for LUMPY file import";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		} else {
 			echo "Fail: unknown method specified";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		#############################################
@@ -351,7 +384,7 @@
 		if (!does_url_exist($_GET["url"])) {
 			echo "Fail: url does not exist";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		#############################################
@@ -373,7 +406,7 @@
 			
 			echo "Fail: could not download data";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 	
 		#############################################
@@ -389,7 +422,7 @@
 				
 				echo "Fail: problem generating MD5 hash for downloaded data";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 			
 			// If the submitted MD5 hash and the MD5 hash of the downloaded data don't match
@@ -398,7 +431,7 @@
 				
 				echo "Fail: MD5 hash submitted didn't match to the one for the downloaded data";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		}
 		
@@ -418,7 +451,7 @@
 				
 				echo "Fail: could not gunzip data";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 			
 			// Remove the .gz extension from the downloaded data file as it has now been gunzipped
@@ -438,7 +471,7 @@
 			
 			echo "Fail: can't open downloaded data for parsing";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		#############################################
@@ -453,7 +486,7 @@
 				
 				echo "Fail: couldn't extract sample names from input file";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		// If the sample name was supplied, save it to the same array structure for consistency
 		} else {
@@ -472,7 +505,7 @@
 				
 				echo "Fail: problem determining if a sample and method are already in the GBS";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 			
 			if ($already_in_gbs === true) {
@@ -484,7 +517,7 @@
 						
 						echo "Success: existing data found for at least one sample so no data was imported.";
 					
-						exit;
+						exit_and_delete_gbs_import_lock();
 					// If the behaviour is to overwrite existing data
 					} elseif ($_GET["existing_data_behaviour"] == "overwrite") {
 						// Delete the existing GBS data
@@ -493,7 +526,7 @@
 							
 							echo "Fail: problem deleting existing GBS data for sample ".$sample;
 							
-							exit;
+							exit_and_delete_gbs_import_lock();
 						}
 						
 						echo "Notice: deleted existing GBS data for sample ".$sample." due to the overwrite parameter;";
@@ -504,7 +537,7 @@
 					
 					echo "Fail: sample '".$sample."' and method already in the GBS";
 				
-					exit;
+					exit_and_delete_gbs_import_lock();
 				}
 			}
 		}
@@ -546,7 +579,7 @@
 			
 			unlink($download_data_path);
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		// If no blocks were found
@@ -555,7 +588,7 @@
 			
 			unlink($download_data_path);
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		fclose($genome_blocks_file);
@@ -572,7 +605,7 @@
 			if (add_sample_to_gbs($sample) === false) {
 				echo "Fail: problem adding sample to GBS";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		}
 		
@@ -582,7 +615,7 @@
 		if (!gbs_add_chromosomes($genome_block_store)) {
 			echo "Fail: problem adding chromosome to GBS";
 				
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		####################
@@ -593,7 +626,7 @@
 			if (add_annotation_tags_to_gbs($unique_annotation_tags) === false) {
 				echo "Fail: problem adding annotation tag to the GBS";
 				
-				exit;
+				exit_and_delete_gbs_import_lock();
 			}
 		}
 		
@@ -611,7 +644,7 @@
 			
 			echo "Fail: There was a problem adding a genomic block to the GBS.";
 			
-			exit;
+			exit_and_delete_gbs_import_lock();
 		}
 		
 		####################
@@ -636,9 +669,25 @@
 					echo ";Fail: problem deleting the smoke test GBS data";
 				}
 			}
-		}	
+		}
+		
+		#############################################
+		
+		exit_and_delete_gbs_import_lock();
 	} else {
 		echo "Fail: no/unknown import type supplied";
+		
+		exit;
+	}
+	
+	#############################################
+	# CUSTOM FUNCTIONS
+	#############################################
+		
+	// Function to be used instead of exit for GBS imports
+	function exit_and_delete_gbs_import_lock() {
+		// Delete the file preventing other GBS imports
+		unlink("/tmp/gbs_currently_importing_lock");
 		
 		exit;
 	}
