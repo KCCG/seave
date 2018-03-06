@@ -418,7 +418,7 @@
 										$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
 									}
 									echo $input_search_genes; # Print the box
-									echo "<p style=\"font-size:75%;\">Separate multiple genes with a semicolon, comma or space.</p>";
+									echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space.</p>";
 								echo "</div>";
 								
 								// The sample overlapping blocks selection div
@@ -466,7 +466,7 @@
 										$input_search_regions .= "placeholder=\"e.g. chr2:15483-25583;chr1:37211-67824;chr5;MT\">";
 									}
 									echo $input_search_regions; # Print the box
-									echo "<p style=\"font-size:75%;\">Separate multiple regions to search with a <strong>semicolon</strong>.</p>";
+									echo "<p class=\"query_label\">Separate multiple regions to search with a <strong>semicolon</strong>.</p>";
 								echo "</div>";
 
 								// The ROHmer selection div
@@ -520,7 +520,7 @@
 										$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
 									}
 									echo $input_search_genes; # Print the box
-									echo "<p style=\"font-size:75%;\">Separate multiple genes with a semicolon, comma or space.</p>";
+									echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space.</p>";
 								echo "</div>";
 								
 								#############################################
@@ -560,7 +560,7 @@
 										echo "<input type=\"range\" name=\"cnlessthan\" id=\"cnlessthan\" min=\"0\" max=\"2\" step=\"0.1\" value=\"".$default_cn_less_than."\" oninput=\"document.querySelector('#cnlessthanvalue').value = value;\">";
 										echo "<output for=\"cnlessthan\" id=\"cnlessthanvalue\">".$default_cn_less_than."</output>";
 										
-										echo "<p style=\"font-size:75%; line-height: normal;\">Return deletion variants with a copy number below this value. <strong>To return all deletion variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+										echo "<p class=\"query_label\">Return deletion variants with a copy number below this value. <strong>To return all deletion variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
 									echo "</section>";
 									
 									// Greater than
@@ -569,7 +569,7 @@
 										echo "<input type=\"range\" name=\"cngreaterthan\" id=\"cngreaterthan\" min=\"2\" max=\"15\" step=\"0.5\" value=\"".$default_cn_greater_than."\" oninput=\"document.querySelector('#cngreaterthanvalue').value = value;\">";
 										echo "<output for=\"cngreaterthan\" id=\"cngreaterthanvalue\">".$default_cn_greater_than."</output>";
 										
-										echo "<p style=\"font-size:75%; line-height: normal;\">Return amplified variants with a copy number above this value. <strong>To return all amplified variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+										echo "<p class=\"query_label\">Return amplified variants with a copy number above this value. <strong>To return all amplified variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
 									echo "</section>";
 								echo "</div>";
 								

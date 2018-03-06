@@ -173,39 +173,39 @@
 											echo "<div class=\"8u\">";
 												echo "<div class=\"selection\" id=\"cnvnator\">";
 													echo "<input type=\"text\" name=\"import_sample_cnvnator\">";
-													echo "<p style=\"font-size:75%;\">Enter the sample name CNVnator was run on above.</p>";
+													echo "<p class=\"query_label\">Enter the sample name CNVnator was run on above.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"sequenza\" style=\"display: none;\">";
 													echo "<input type=\"text\" name=\"import_sample_sequenza\">";
-													echo "<p style=\"font-size:75%;\">Enter the sample name Sequenza was run on above.</p>";
+													echo "<p class=\"query_label\">Enter the sample name Sequenza was run on above.</p>";
 												echo "</div>";
 
 												echo "<div class=\"selection\" id=\"purple\" style=\"display: none;\">";
 													echo "<input type=\"text\" name=\"import_sample_purple\">";
-													echo "<p style=\"font-size:75%;\">Enter the sample name PURPLE was run on above.</p>";
+													echo "<p class=\"query_label\">Enter the sample name PURPLE was run on above.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"rohmer\" style=\"display: none;\">";
 													echo "<input type=\"text\" name=\"import_sample_rohmer\">";
-													echo "<p style=\"font-size:75%;\">Enter the sample name ROHmer was run on above.</p>";
+													echo "<p class=\"query_label\">Enter the sample name ROHmer was run on above.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"varpipesv\" style=\"display: none;\">";
-													echo "<p style=\"color:red; font-size:8pt;\">VarpipeSV contains sample names in the VCF output.</p>";
+													echo "<p class=\"query_label\" style=\"color:red;\">VarpipeSV contains sample names in the VCF output.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"manta\" style=\"display: none;\">";
-													echo "<p style=\"color:red; font-size:8pt;\">Manta contains sample names in the VCF output.</p>";
+													echo "<p class=\"query_label\" style=\"color:red;\">Manta contains sample names in the VCF output.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"lumpy\" style=\"display: none;\">";
-													echo "<p style=\"color:red; font-size:8pt;\">LUMPY contains sample names in the VCF output.</p>";
+													echo "<p class=\"query_label\" style=\"color:red;\">LUMPY contains sample names in the VCF output.</p>";
 												echo "</div>";
 												
 												echo "<div class=\"selection\" id=\"cnvkit\" style=\"display: none;\">";
 													echo "<input type=\"text\" name=\"import_sample_cnvkit\">";
-													echo "<p style=\"font-size:75%;\">Enter the sample name CNVkit was run on above.</p>";
+													echo "<p class=\"query_label\">Enter the sample name CNVkit was run on above.</p>";
 												echo "</div>";
 											echo "</div>";
 										echo "</div>";
@@ -218,35 +218,35 @@
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"varpipesv\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the .vcf file.</p>";
+											echo "<p class=\"query_label\">Select the .vcf file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"rohmer\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the .bed file.</p>";
+											echo "<p class=\"query_label\">Select the .bed file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"lumpy\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the .vcf file.</p>";
+											echo "<p class=\"query_label\">Select the .vcf file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"cnvnator\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the .bed file.</p>";
+											echo "<p class=\"query_label\">Select the .bed file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"sequenza\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the segments.txt file.</p>";
+											echo "<p class=\"query_label\">Select the segments.txt file.</p>";
 										echo "</div>";
 
 										echo "<div class=\"selection\" id=\"purple\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the purple.cnv file.</p>";
+											echo "<p class=\"query_label\">Select the purple.cnv file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"manta\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the somaticSV.vcf file.</p>";
+											echo "<p class=\"query_label\">Select the somaticSV.vcf file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"selection\" id=\"cnvkit\" style=\"display: none;\">";
-											echo "<p style=\"font-size:75%;\">Select the .cns file.</p>";
+											echo "<p class=\"query_label\">Select the .cns file.</p>";
 										echo "</div>";
 										
 										echo "<div class=\"row\">";
