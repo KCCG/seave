@@ -341,30 +341,18 @@
 								echo "<h4>Frequency in control databases</h4>";
 								
 								echo "<label for=\"1000gmaf\" style=\"display: inline;\">1000 Genomes</label><br />";
-								echo "<input type=\"range\" name=\"1000gmaf\" id=\"1000gmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_1000g_frequency."\" oninput=\"outputUpdateThousandgenomes(value)\">";
+								echo "<input type=\"range\" name=\"1000gmaf\" id=\"1000gmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_1000g_frequency."\" oninput=\"document.querySelector('#thousandgenomesmafvalue').value = value;\">";
 								echo "<output for=\"1000gmaf\" id=\"thousandgenomesmafvalue\">".$default_1000g_frequency."</output>%<br />";
 								
 								echo "<label for=\"espmaf\" style=\"display: inline;\">ESP</label><br />";
-								echo "<input type=\"range\" name=\"espmaf\" id=\"espmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_esp_frequency."\" oninput=\"outputUpdateESP(value)\">";
+								echo "<input type=\"range\" name=\"espmaf\" id=\"espmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_esp_frequency."\" oninput=\"document.querySelector('#espmafvalue').value = value;\">";
 								echo "<output for=\"espmaf\" id=\"espmafvalue\">".$default_esp_frequency."</output>%<br>";
 								
 								echo "<label for=\"exacmaf\" style=\"display: inline;\">ExAC</label><br />";
-								echo "<input type=\"range\" name=\"exacmaf\" id=\"exacmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_exac_frequency."\" oninput=\"outputUpdateExAC(value)\">";
+								echo "<input type=\"range\" name=\"exacmaf\" id=\"exacmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_exac_frequency."\" oninput=\"document.querySelector('#exacmafvalue').value = value;\">";
 								echo "<output for=\"exacmaf\" id=\"exacmafvalue\">".$default_exac_frequency."</output>%";
 								
 								echo "<p style=\"font-size:75%;\">Variants will be returned that are either below the allele frequency set or not present in the database. <strong>For no minimum allele frequency, set the value to 0%.</strong></p>";
-								
-								echo "<script>"; # Functions for updating the real-time slider values
-									echo "function outputUpdateThousandgenomes(val) {";
-										echo "document.querySelector('#thousandgenomesmafvalue').value = val;";
-									echo "}";
-									echo "function outputUpdateESP(val) {";
-										echo "document.querySelector('#espmafvalue').value = val;";
-									echo "}";
-									echo "function outputUpdateExAC(val) {";
-										echo "document.querySelector('#exacmafvalue').value = val;";
-									echo "}";
-								echo "</script>";
 								
 								// Custom dbsnp columns
 								if ($_SESSION["dbsnp_columns_exist"] == 1) {

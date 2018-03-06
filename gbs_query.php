@@ -143,7 +143,7 @@
 								
 								// Print the Entire Dataset option first
 								// If there has been no family selected before or the entire dataset has already been selected, select the Entire Dataset option
-								echo "<input type=\"radio\" id=\"family_entiredatabase\" name=\"family\" value=\"entiredatabase\" onclick=\"javascript:showfamilygbs('entiredatabase');\"";
+								echo "<input type=\"radio\" id=\"family_entiredatabase\" name=\"family\" value=\"entiredatabase\" onclick=\"showfamilygbs('entiredatabase');\"";
 								if ($_SESSION["gbs_family"] == "" || $_SESSION["gbs_family"] == "entiredatabase") {
 									echo " checked>";
 								} else {
@@ -160,7 +160,7 @@
 											continue;
 										}
 										
-										echo "<input type=\"radio\" id=\"family_".$family_id."\" name=\"family\" value=\"".$family_id."\" onclick=\"javascript:showfamilygbs('$family_id');\"";
+										echo "<input type=\"radio\" id=\"family_".$family_id."\" name=\"family\" value=\"".$family_id."\" onclick=\"showfamilygbs('$family_id');\"";
 										if ($_SESSION["gbs_family"] == (string) $family_id) { # If this is the family previously selected, mark the radio as checked to correspond with the family information below (the (string) forces the family name to be treated as a string which prevents "entiredatabase" being equal to int(0) and the wrong family being selected when one of the families is names zero
 											echo " checked>";
 										} else {
@@ -335,19 +335,19 @@
 												echo " disabled=\"\"";
 											}
 											
-											// Add onclick javascript events to show analysis descriptions or options
+											// Add onclick javascript events to show analysis descriptions or options and hide/show the CN restriction section based on analysis type
 											if ($analysis_type == "gene_lists") {
-												echo " onclick=\"javascript:showdiv('lists');\"";
+												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "sample_overlaps") {
-												echo " onclick=\"javascript:showdiv('sample_overlaps');\"";
+												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "method_overlaps") {
-												echo " onclick=\"javascript:showdiv('method_overlaps');\"";
+												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "genomic_coordinates") {
-												echo " onclick=\"javascript:showdiv('positions');\"";
+												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "rohmer") {
-												echo " onclick=\"javascript:showdiv('rohmer');\"";
+												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "svfusions") {
-												echo " onclick=\"javascript:showdiv('svfusions');\"";
+												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'block';\"";
 											}
 											
 											// Select the current analysis type if it was previously selected or one has not been selected before
@@ -419,7 +419,6 @@
 									}
 									echo $input_search_genes; # Print the box
 									echo "<p style=\"font-size:75%;\">Separate multiple genes with a semicolon, comma or space.</p>";
-
 								echo "</div>";
 								
 								// The sample overlapping blocks selection div
@@ -430,7 +429,7 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description:</h3>";
+									echo "<h3 padding-bottom:10px;\">Description</h3>";
 									
 									echo "<p>Overlaps will be returned between samples where all methods are the same.</p>";
 								echo "</div>";
@@ -443,7 +442,7 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description:</h3>";
+									echo "<h3 padding-bottom:10px;\">Description</h3>";
 									
 									echo "<p>Overlaps will be returned between methods where the sample is the same.</p>";
 								echo "</div>";
@@ -456,7 +455,7 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Options:</h3>";
+									echo "<h3 padding-bottom:10px;\">Options</h3>";
 									
 									echo "<h4>Search region(s)</h4>";
 								
@@ -478,7 +477,7 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description:</h3>";
+									echo "<h3 padding-bottom:10px;\">Description</h3>";
 									
 									echo "<p>First, shared RoH blocks are extracted for affected individuals. Then, any regions within these blocks that are shared with at least one of the unaffected individuals will be removed. The <strong>remaining regions are shared by affected individuals and not present in any unaffected individual</strong>.</p>";
 								echo "</div>";
@@ -491,7 +490,7 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description:</h3>";
+									echo "<h3 padding-bottom:10px;\">Description</h3>";
 									
 									echo "<p>Returns all translocation and inversion events where one or both of the break points are inside a gene. Select a gene list or enter a manual gene list to restrict your search to specific genes, otherwise don't select anything to search the entire genome.</p>";
 									
@@ -525,7 +524,59 @@
 								echo "</div>";
 								
 								#############################################
-	
+								
+								// If the form has already been submitted, retain the value
+								if ($_SESSION["gbs_cnlessthan"] != "") {
+									$default_cn_less_than = $_SESSION["gbs_cnlessthan"];
+								// Otherwise determine the default value from the config file
+								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cnlessthan"]) && is_numeric($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cnlessthan"])) {
+									$default_cn_less_than = $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cnlessthan"];
+								// Or use a default value if not in config file
+								} else {
+									$default_cn_less_than = "1.5";
+								}
+								
+								// If the form has already been submitted, retain the value
+								if ($_SESSION["gbs_cngreaterthan"] != "") {
+									$default_cn_greater_than = $_SESSION["gbs_cngreaterthan"];
+								// Otherwise determine the default value from the config file
+								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cngreaterthan"]) && is_numeric($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cngreaterthan"])) {
+									$default_cn_greater_than = $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_cngreaterthan"];
+								// Or use a default value if not in config file
+								} else {
+									$default_cn_greater_than = "2.5";
+								}
+								
+								echo "<div class=\"row\" id=\"cnrestriction\"";
+								// If the ROHmer analysis type was previously used, hide it
+								if ($_SESSION["gbs_analysis_type"] == "rohmer") {
+									echo " style=\"display: none;\">";
+								} else {
+									echo ">";
+								}
+									// Less than
+									echo "<section class=\"6u 12u(narrower)\">";
+										echo "<label for=\"cnlessthan\" style=\"display: inline;\">Deletion copy number</label><br>";
+										echo "<input type=\"range\" name=\"cnlessthan\" id=\"cnlessthan\" min=\"0\" max=\"2\" step=\"0.1\" value=\"".$default_cn_less_than."\" oninput=\"document.querySelector('#cnlessthanvalue').value = value;\">";
+										echo "<output for=\"cnlessthan\" id=\"cnlessthanvalue\">".$default_cn_less_than."</output>";
+										
+										echo "<p style=\"font-size:75%; line-height: normal;\">Return deletion variants with a copy number below this value. <strong>To return all deletion variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+									echo "</section>";
+									
+									// Greater than
+									echo "<section class=\"6u 12u(narrower)\">";
+										echo "<label for=\"cngreaterthan\" style=\"display: inline;\">Gain copy number</label><br>";
+										echo "<input type=\"range\" name=\"cngreaterthan\" id=\"cngreaterthan\" min=\"2\" max=\"15\" step=\"0.5\" value=\"".$default_cn_greater_than."\" oninput=\"document.querySelector('#cngreaterthanvalue').value = value;\">";
+										echo "<output for=\"cngreaterthan\" id=\"cngreaterthanvalue\">".$default_cn_greater_than."</output>";
+										
+										echo "<p style=\"font-size:75%; line-height: normal;\">Return amplified variants with a copy number above this value. <strong>To return all amplified variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+									echo "</section>";
+								echo "</div>";
+								
+								echo "<br>";
+								
+								#############################################
+								
 								echo "<input type=\"submit\" value=\"Launch query\">";
 							
 							echo "</form>";

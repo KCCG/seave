@@ -150,21 +150,21 @@
 									echo "<form action=\"actions/action_import_genome_blocks\" method=\"post\" enctype=\"multipart/form-data\">";
 										echo "<h4>Select an importation method</h4>";
 										
-										echo "<input type=\"radio\" id=\"label_cnvnator\" name=\"method\" value=\"CNVnator\" onclick=\"javascript:showdiv('cnvnator');\" checked>";
+										echo "<input type=\"radio\" id=\"label_cnvnator\" name=\"method\" value=\"CNVnator\" onclick=\"showdiv('cnvnator');\" checked>";
 										echo "<label for=\"label_cnvnator\">CNVnator</label>";
-										echo "<input type=\"radio\" id=\"label_lumpy\" name=\"method\" value=\"LUMPY\" onclick=\"javascript:showdiv('lumpy');\">";
+										echo "<input type=\"radio\" id=\"label_lumpy\" name=\"method\" value=\"LUMPY\" onclick=\"showdiv('lumpy');\">";
 										echo "<label for=\"label_lumpy\">LUMPY</label>";
-										echo "<input type=\"radio\" id=\"label_sequenza\" name=\"method\" value=\"Sequenza\" onclick=\"javascript:showdiv('sequenza');\">";
+										echo "<input type=\"radio\" id=\"label_sequenza\" name=\"method\" value=\"Sequenza\" onclick=\"showdiv('sequenza');\">";
 										echo "<label for=\"label_sequenza\">Sequenza</label>";
-										echo "<input type=\"radio\" id=\"label_purple\" name=\"method\" value=\"PURPLE\" onclick=\"javascript:showdiv('purple');\">";
+										echo "<input type=\"radio\" id=\"label_purple\" name=\"method\" value=\"PURPLE\" onclick=\"showdiv('purple');\">";
 										echo "<label for=\"label_purple\">PURPLE</label>";
-										echo "<input type=\"radio\" id=\"label_rohmer\" name=\"method\" value=\"ROHmer\" onclick=\"javascript:showdiv('rohmer');\">";
+										echo "<input type=\"radio\" id=\"label_rohmer\" name=\"method\" value=\"ROHmer\" onclick=\"showdiv('rohmer');\">";
 										echo "<label for=\"label_rohmer\">ROHmer</label>";
-										echo "<input type=\"radio\" id=\"label_varpipesv\" name=\"method\" value=\"VarpipeSV\" onclick=\"javascript:showdiv('varpipesv');\">";
+										echo "<input type=\"radio\" id=\"label_varpipesv\" name=\"method\" value=\"VarpipeSV\" onclick=\"showdiv('varpipesv');\">";
 										echo "<label for=\"label_varpipesv\">VarpipeSV</label>";
-										echo "<input type=\"radio\" id=\"label_manta\" name=\"method\" value=\"Manta\" onclick=\"javascript:showdiv('manta');\">";
+										echo "<input type=\"radio\" id=\"label_manta\" name=\"method\" value=\"Manta\" onclick=\"showdiv('manta');\">";
 										echo "<label for=\"label_manta\">Manta</label>";
-										echo "<input type=\"radio\" id=\"label_cnvkit\" name=\"method\" value=\"CNVkit\" onclick=\"javascript:showdiv('cnvkit');\">";
+										echo "<input type=\"radio\" id=\"label_cnvkit\" name=\"method\" value=\"CNVkit\" onclick=\"showdiv('cnvkit');\">";
 										echo "<label for=\"label_cnvkit\">CNVkit</label>";
 										echo "<br><br>";
 										
