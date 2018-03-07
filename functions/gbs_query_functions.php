@@ -199,8 +199,8 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 			$sql .= ") ";
 	}
 	
-	// If a copy number restriction has been specified
-	if (is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
+	// If the analysis type is not one that doesn't use copy number restrictions and a copy number restriction has been specified, add the SQL clause
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
 		$sql .= "AND ";
 		
 			$sql .= "(";
@@ -220,8 +220,8 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 	
 	$parameter_values = array_merge($sample_names, $method_names, $event_types);
 	
-	// If a copy number restriction has been specified add the SQL parameters
-	if (is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
+	// If the analysis type is not one that doesn't use copy number restrictions and a copy number restriction has been specified, add the SQL parameters
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
 		array_push($parameter_values, $_SESSION["gbs_cnlessthan"], $_SESSION["gbs_cngreaterthan"]);
 	}
 	

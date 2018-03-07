@@ -26,20 +26,14 @@
 	
 	$_SESSION["gbs_family"] = htmlspecialchars($_POST["family"], ENT_QUOTES, 'UTF-8');
 	
-	// If the analysis type is not one that doesn't use copy number restrictions and a greater than copy number has been submitted
+	// If a numeric greater than copy number has been submitted, update the global value
 	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cngreaterthan"]) && is_numeric($_POST["cngreaterthan"])) {
 		$_SESSION["gbs_cngreaterthan"] = htmlspecialchars($_POST["cngreaterthan"], ENT_QUOTES, 'UTF-8');
-	// Otherwise reset the current value so it's not used in query functions
-	} else {
-		$_SESSION["gbs_cngreaterthan"] = "";
 	}
 	
-	// If the analysis type is not one that doesn't use copy number restrictions and a less than copy number has been submitted
+	// If a numeric less than copy number has been submitted, update the global value
 	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cnlessthan"]) && is_numeric($_POST["cnlessthan"])) {
 		$_SESSION["gbs_cnlessthan"] = htmlspecialchars($_POST["cnlessthan"], ENT_QUOTES, 'UTF-8');
-	// Otherwise reset the current value so it's not used in query functions
-	} else {
-		$_SESSION["gbs_cnlessthan"] = "";
 	}
 	
 	#############################################
