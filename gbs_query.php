@@ -347,7 +347,7 @@
 											} elseif ($analysis_type == "rohmer") {
 												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "svfusions") {
-												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none';\"";
 											}
 											
 											// Select the current analysis type if it was previously selected or one has not been selected before
@@ -548,8 +548,8 @@
 								}
 								
 								echo "<div class=\"row\" id=\"cnrestriction\"";
-								// If the ROHmer analysis type was previously used, hide it
-								if ($_SESSION["gbs_analysis_type"] == "rohmer") {
+								// Hide the copy number restriction if the analysis type used previous was ROHmer or SV Fusions
+								if (in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions"))) {
 									echo " style=\"display: none;\">";
 								} else {
 									echo ">";
