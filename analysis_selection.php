@@ -55,7 +55,7 @@
 									#############################################
 									
 									// If there has been no family selected before or the entire dataset has already been selected, select the Entire Dataset option
-									echo "<input type=\"radio\" id=\"family_entiredatabase\" name=\"family\" value=\"entiredatabase\" onclick=\"javascript:showfamily('family_info_entiredatabase');\"";
+									echo "<input type=\"radio\" id=\"family_entiredatabase\" name=\"family\" value=\"entiredatabase\" onclick=\"showfamily('family_info_entiredatabase');\"";
 									if ($_SESSION["family"] == "" || $_SESSION["family"] == "entiredatabase") {
 										echo " checked>";
 									} elseif ($_SESSION["family"] != "") {
@@ -67,7 +67,7 @@
 									if (count(array_keys($family_info)) > 1 || (count(array_keys($family_info)) == 1 && !isset($family_info[0]))) {
 										// Go through every family
 										foreach (array_keys($family_info) as $family_id) {				
-											echo "<input type=\"radio\" id=\"family_".$family_id."\" name=\"family\" value=\"".$family_id."\" onclick=\"javascript:showfamily('family_info_$family_id');\"";
+											echo "<input type=\"radio\" id=\"family_".$family_id."\" name=\"family\" value=\"".$family_id."\" onclick=\"showfamily('family_info_$family_id');\"";
 											if ($_SESSION["family"] == (string) $family_id) { # If this is the family previously selected, mark the radio as checked to correspond with the family information below (the (string) forces the family name to be treated as a string which prevents "entiredatabase" being equal to int(0) and the wrong family being selected when one of the families is names zero
 												echo " checked>";
 											} else {

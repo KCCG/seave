@@ -19,12 +19,22 @@
 	}
 	
 	#############################################
-	# CAPTURE THE ANALYSIS TYPE AND FAMILY NAME
+	# CAPTURE THE SUBMITTED VALUES
 	#############################################
 	
 	$_SESSION["gbs_analysis_type"] = htmlspecialchars($_POST[preg_replace("/\s/", "_", $_POST["family"])."analysis_type"], ENT_QUOTES, 'UTF-8');
 	
 	$_SESSION["gbs_family"] = htmlspecialchars($_POST["family"], ENT_QUOTES, 'UTF-8');
+	
+	// If a numeric greater than copy number has been submitted, update the global value
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cngreaterthan"]) && is_numeric($_POST["cngreaterthan"])) {
+		$_SESSION["gbs_cngreaterthan"] = htmlspecialchars($_POST["cngreaterthan"], ENT_QUOTES, 'UTF-8');
+	}
+	
+	// If a numeric less than copy number has been submitted, update the global value
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cnlessthan"]) && is_numeric($_POST["cnlessthan"])) {
+		$_SESSION["gbs_cnlessthan"] = htmlspecialchars($_POST["cnlessthan"], ENT_QUOTES, 'UTF-8');
+	}
 	
 	#############################################
 	# EXTRACT FAMILIAL INFORMATION FOR THE DB

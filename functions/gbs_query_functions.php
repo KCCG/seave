@@ -6,7 +6,7 @@
 # CREATE SQL QUERY STRING TO QUERY THE GBS FOR A GIVEN METHOD AND NUMBER OF SAMPLES
 #############################################
 
-function query_blocks_by_position_gbs($num_samples, $method) {
+function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_flag) {
 	$sql = "SELECT ";
 		$sql .= "GBS.samples.sample_name, ";
 		$sql .= "GBS.event_types.event_type, ";
@@ -89,6 +89,23 @@ function query_blocks_by_position_gbs($num_samples, $method) {
 			$sql .= " AND ";
 			
 			$sql .= "GBS.methods.method_name = ?"; // Query method
+		}
+		
+		// If a copy number restriction is to be performed
+		if ($cn_restriction_flag == "restrict_cn") {
+			$sql .= " AND ";
+			
+				$sql .= "(";
+					$sql .= "GBS.block_store.event_cn <= ? ";
+					
+					$sql .= "OR ";
+					
+					$sql .= "GBS.block_store.event_cn >= ? ";
+					
+					$sql .= "OR ";
+					
+					$sql .= "GBS.block_store.event_cn IS NULL";
+				$sql .= ")";
 		}
 	$sql .= ";";
 	
@@ -181,9 +198,32 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 				$sql = substr($sql, 0, -2); // Remove the last ", " that was added above			
 			$sql .= ") ";
 	}
+	
+	// If the analysis type is not one that doesn't use copy number restrictions and a copy number restriction has been specified, add the SQL clause
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
+		$sql .= "AND ";
+		
+			$sql .= "(";
+				$sql .= "GBS.block_store.event_cn <= ? ";
+				
+				$sql .= "OR ";
+				
+				$sql .= "GBS.block_store.event_cn >= ? ";
+				
+				$sql .= "OR ";
+				
+				$sql .= "GBS.block_store.event_cn IS NULL";
+			$sql .= ") ";
+	}
+	
 	$sql .= ";";
 	
 	$parameter_values = array_merge($sample_names, $method_names, $event_types);
+	
+	// If the analysis type is not one that doesn't use copy number restrictions and a copy number restriction has been specified, add the SQL parameters
+	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
+		array_push($parameter_values, $_SESSION["gbs_cnlessthan"], $_SESSION["gbs_cngreaterthan"]);
+	}
 	
 	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
 	

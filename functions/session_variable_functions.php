@@ -23,7 +23,9 @@ function clean_session($logout = NULL) {
 	$_SESSION["gbs_gene_list_selection"] = ""; // For the gene list(s) analysis type
 	$_SESSION["gbs_gene_list"] = ""; // For the gene list(s) analysis type
 	$_SESSION["gbs_svfusions_gene_list_selection"] = ""; // For the SV Fusions analysis type
-	$_SESSION["gbs_svfusions_gene_list"] = "";// For the SV Fusions analysis type
+	$_SESSION["gbs_svfusions_gene_list"] = ""; // For the SV Fusions analysis type
+	$_SESSION["gbs_cnlessthan"] = ""; // For most the the analysis types
+	$_SESSION["gbs_cngreaterthan"] = ""; // For most the the analysis types
 	
 	// Regions for inclusion/exclusion manually entered
 	$_SESSION["regions"] = "";

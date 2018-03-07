@@ -97,7 +97,7 @@
 									$input_search_regions .= "placeholder=\"e.g. chr2:15483-25583;chr1:37211-67824;chr5;MT\">";
 								}
 								echo $input_search_regions; # Print the box
-								echo "<p style=\"font-size:75%;\">Separate multiple regions to search with a <strong>semicolon</strong>. To search all regions, leave this box blank. Any genes specified will be restricted to these coordinates.</p>";
+								echo "<p class=\"query_label\">Separate multiple regions to search with a <strong>semicolon</strong>. To search all regions, leave this box blank. Any genes specified will be restricted to these coordinates.</p>";
 								
 								######################
 								
@@ -133,7 +133,7 @@
 									$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
 								}
 								echo $input_search_genes; # Print the box
-								echo "<p style=\"font-size:75%;\">Separate multiple genes with a semicolon, comma or space. To search all genes, leave this box blank.</p>";
+								echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space. To search all genes, leave this box blank.</p>";
 								
 							echo "</section>";
 							
@@ -154,7 +154,7 @@
 									$input_exclude_regions .= "placeholder=\"e.g. chr2:15483-25583;chr1:37211-67824;chr5;MT\">";
 								}
 								echo $input_exclude_regions; # Print the box
-								echo "<p style=\"font-size:75%;\">Separate multiple regions to exclude with a <strong>semicolon</strong>. To search all regions, leave this box blank. Any genes specified will be restricted to these coordinates.</p>";
+								echo "<p class=\"query_label\">Separate multiple regions to exclude with a <strong>semicolon</strong>. To search all regions, leave this box blank. Any genes specified will be restricted to these coordinates.</p>";
 								
 								######################
 								
@@ -190,7 +190,7 @@
 									$input_exclude_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
 								}
 								echo $input_exclude_genes; # Print the box
-								echo "<p style=\"font-size:75%;\">Separate multiple genes with a semicolon, comma or space. To not exclude any genes, leave this box blank.</p>";
+								echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space. To not exclude any genes, leave this box blank.</p>";
 	
 							echo "</section>";
 							
@@ -290,7 +290,7 @@
 								
 								echo "<input type=\"range\" name=\"min_cadd\" id=\"min_cadd\" min=\"0\" max=\"30\" step=\"1\" value=\"".$default_scaled_cadd_score."\" oninput=\"outputUpdateMinCADD(value)\">";
 								echo "<output for=\"min_cadd\" id=\"mincaddvalue\">".$default_scaled_cadd_score."</output><br />";
-								echo "<p style=\"font-size:75%;\"><strong>All variants without CADD scores are returned.</strong> For no minimum scaled CADD score, set this value to 0.</p>";
+								echo "<p class=\"query_label\"><strong>All variants without CADD scores are returned.</strong> For no minimum scaled CADD score, set this value to 0.</p>";
 								
 								echo "<script>"; # Function for updating the real-time slider values
 									echo "function outputUpdateMinCADD(val) {";
@@ -341,30 +341,18 @@
 								echo "<h4>Frequency in control databases</h4>";
 								
 								echo "<label for=\"1000gmaf\" style=\"display: inline;\">1000 Genomes</label><br />";
-								echo "<input type=\"range\" name=\"1000gmaf\" id=\"1000gmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_1000g_frequency."\" oninput=\"outputUpdateThousandgenomes(value)\">";
+								echo "<input type=\"range\" name=\"1000gmaf\" id=\"1000gmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_1000g_frequency."\" oninput=\"document.querySelector('#thousandgenomesmafvalue').value = value;\">";
 								echo "<output for=\"1000gmaf\" id=\"thousandgenomesmafvalue\">".$default_1000g_frequency."</output>%<br />";
 								
 								echo "<label for=\"espmaf\" style=\"display: inline;\">ESP</label><br />";
-								echo "<input type=\"range\" name=\"espmaf\" id=\"espmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_esp_frequency."\" oninput=\"outputUpdateESP(value)\">";
+								echo "<input type=\"range\" name=\"espmaf\" id=\"espmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_esp_frequency."\" oninput=\"document.querySelector('#espmafvalue').value = value;\">";
 								echo "<output for=\"espmaf\" id=\"espmafvalue\">".$default_esp_frequency."</output>%<br>";
 								
 								echo "<label for=\"exacmaf\" style=\"display: inline;\">ExAC</label><br />";
-								echo "<input type=\"range\" name=\"exacmaf\" id=\"exacmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_exac_frequency."\" oninput=\"outputUpdateExAC(value)\">";
+								echo "<input type=\"range\" name=\"exacmaf\" id=\"exacmaf\" min=\"0\" max=\"10\" step=\"0.1\" value=\"".$default_exac_frequency."\" oninput=\"document.querySelector('#exacmafvalue').value = value;\">";
 								echo "<output for=\"exacmaf\" id=\"exacmafvalue\">".$default_exac_frequency."</output>%";
 								
-								echo "<p style=\"font-size:75%;\">Variants will be returned that are either below the allele frequency set or not present in the database. <strong>For no minimum allele frequency, set the value to 0%.</strong></p>";
-								
-								echo "<script>"; # Functions for updating the real-time slider values
-									echo "function outputUpdateThousandgenomes(val) {";
-										echo "document.querySelector('#thousandgenomesmafvalue').value = val;";
-									echo "}";
-									echo "function outputUpdateESP(val) {";
-										echo "document.querySelector('#espmafvalue').value = val;";
-									echo "}";
-									echo "function outputUpdateExAC(val) {";
-										echo "document.querySelector('#exacmafvalue').value = val;";
-									echo "}";
-								echo "</script>";
+								echo "<p class=\"query_label\">Variants will be returned that are either below the allele frequency set or not present in the database. <strong>For no minimum allele frequency, set the value to 0%.</strong></p>";
 								
 								// Custom dbsnp columns
 								if ($_SESSION["dbsnp_columns_exist"] == 1) {
@@ -412,7 +400,7 @@
 
 								echo "<input type=\"range\" name=\"min_seq_depth\" id=\"min_seq_depth\" min=\"0\" max=\"100\" step=\"10\" value=\"".$default_sequencing_depth."\" oninput=\"outputUpdateNumSeqDepth(value)\">";
 								echo "<output for=\"min_seq_depth\" id=\"numminseqdepthvalue\">".$default_sequencing_depth."</output><br />";
-								echo "<p style=\"font-size:75%;\">For no minimum sequencing depth, set this value to 0.</p>";
+								echo "<p class=\"query_label\">For no minimum sequencing depth, set this value to 0.</p>";
 								
 								echo "<script>"; # Function for updating the real-time slider values
 									echo "function outputUpdateNumSeqDepth(val) {";
@@ -437,7 +425,7 @@
 							
 								echo "<input type=\"range\" name=\"min_qual\" id=\"min_qual\" min=\"0\" max=\"1000\" step=\"20\" value=\"".$default_minimum_variant_quality."\" oninput=\"outputUpdateMinQual(value)\">";
 								echo "<output for=\"min_qual\" id=\"minqualvalue\">".$default_minimum_variant_quality."</output><br />";
-								echo "<p style=\"font-size:75%;\">For no minimum variant quality, set this value to 0.</p>";
+								echo "<p class=\"query_label\">For no minimum variant quality, set this value to 0.</p>";
 								
 								echo "<script>"; # Function for updating the real-time slider values
 									echo "function outputUpdateMinQual(val) {";
