@@ -518,7 +518,7 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 	# WRITE ALL POTENTIALLY FUSING BLOCKS PER SAMPLE OUT TO BED FILES
 	#############################################
 	
-	$samples_bed_paths = write_event_types_per_sample_to_beds($samples_to_query, array("inversion", "BND", "deletion"), "split_deletions");
+	$samples_bed_paths = write_event_types_per_sample_to_beds($samples_to_query, array("inversion", "BND"), array("deletion", "tandem duplication"));
 	// Note: this will write block types with 2 breakpoints (e.g. INV/BND) on 2 lines with their separate block IDs but for blocks where it's one event (e.g. deletions) it will write the single block ID followed by -1 and -2 for the 2 breakpoints at the start and end
 	
 	if ($samples_bed_paths === false) {
@@ -616,6 +616,24 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 						// Note: don't forget that block types which do not have 2 GBS breakpoint blocks per event (e.g. deletions) are stored with their <block id>-1 and -2 for the 2 breakpoints, this is important for matching to DB results later
 					}
 				}
+			}
+		}
+	}
+	
+	// Go through each parsed block id
+	foreach (array_keys($intersection_results) as $block_id) {
+		// If the block id is the first one of one of the ones that were split into their breakpoints
+		if (preg_match("/\-1$/", $block_id)) {
+			$paired_split_block_id = preg_replace("/-1$/", "-2", $block_id);
+			
+			// If the paired breakpoint also overlapped with one or more genes
+			if (isset($intersection_results[$paired_split_block_id])) {
+				// If both only overlapped with 1 gene and that gene is the same
+				if (count($intersection_results[$block_id]["gene"]) == 1 && count($intersection_results[$paired_split_block_id]["gene"]) == 1 && $intersection_results[$block_id]["gene"][0] == $intersection_results[$paired_split_block_id]["gene"][0]) {
+					// Delete both
+					unset($intersection_results[$block_id], $intersection_results[$paired_split_block_id]);
+				}
+				
 			}
 		}
 	}

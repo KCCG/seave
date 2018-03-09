@@ -495,7 +495,7 @@ function write_samples_methods_to_beds(array $sample_names, array $method_names)
 # WRITE EVENT TYPE BLOCKS TO BED FILES PER SAMPLE
 #############################################
 
-function write_event_types_per_sample_to_beds(array $sample_names, array $event_types, $deletions_split_flag = NULL) {
+function write_event_types_per_sample_to_beds(array $sample_names, array $event_types, array $split_event_types) {
 	// At least one sample and event type must be supplied
 	if (count($sample_names) == 0 || count($event_types) == 0) {
 		return false;
@@ -505,7 +505,7 @@ function write_event_types_per_sample_to_beds(array $sample_names, array $event_
 	# FETCH ALL BLOCKS FOR SAMPLES AND EVENT TYPES
 	#############################################
 	
-	$GBS_results = fetch_blocks_for_samples_methods_events_gbs($sample_names, array(), $event_types);
+	$GBS_results = fetch_blocks_for_samples_methods_events_gbs($sample_names, array(), array_merge($event_types, $split_event_types));
 	
 	if ($GBS_results === false) {
 		return false;
@@ -533,8 +533,8 @@ function write_event_types_per_sample_to_beds(array $sample_names, array $event_
 		foreach (array_keys($GBS_results[$sample_name]) as $method_name) {
 			// Go through each block
 			foreach (array_keys($GBS_results[$sample_name][$method_name]) as $block_id) {
-				// If the flag to split deletions into multiple blocks has been set and the current event is a deletion
-				if (isset($deletions_split_flag) && $deletions_split_flag == "split_deletions" && $GBS_results[$sample_name][$method_name][$block_id]["event_type"] == "deletion") {
+				// If the current event is one of the ones for which to split one block into 2 breakpoints because the block is not stored as 2 breakpoints (e.g. deletions)
+				if (in_array($GBS_results[$sample_name][$method_name][$block_id]["event_type"], $split_event_types)) {
 					// Create 2 lines in the BED file for the sample + split block into start and end and add a -1/-2 to the end of the block id to enable teasing apart what genes they overlapped with later
 					array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["start"]."\t".($GBS_results[$sample_name][$method_name][$block_id]["start"] + 1)."\t".$block_id."-1\n");
 					array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["end"]."\t".($GBS_results[$sample_name][$method_name][$block_id]["end"] + 1)."\t".$block_id."-2\n");
