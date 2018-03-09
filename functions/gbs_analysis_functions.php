@@ -515,10 +515,11 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 	}
 	
 	#############################################
-	# WRITE ALL BND/INV BLOCKS PER SAMPLE OUT TO BED FILES
+	# WRITE ALL POTENTIALLY FUSING BLOCKS PER SAMPLE OUT TO BED FILES
 	#############################################
 	
-	$samples_bed_paths = write_event_types_per_sample_to_beds($samples_to_query, array("inversion", "BND"));
+	$samples_bed_paths = write_event_types_per_sample_to_beds($samples_to_query, array("inversion", "BND", "deletion"), "split_deletions");
+	// Note: this will write block types with 2 breakpoints (e.g. INV/BND) on 2 lines with their separate block IDs but for blocks where it's one event (e.g. deletions) it will write the single block ID followed by -1 and -2 for the 2 breakpoints at the start and end
 	
 	if ($samples_bed_paths === false) {
 		return false;
@@ -611,6 +612,8 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 						// Format:
 						// $intersection_results[<GBS block ID>][<chromosome>] = <value>
 						// $intersection_results[<GBS block ID>][<gene/intersection_start/intersection_end/event_start/event_end/gene_start/gene_end>][<array id>] = <value>
+						
+						// Note: don't forget that block types which do not have 2 GBS breakpoint blocks per event (e.g. deletions) are stored with their <block id>-1 and -2 for the 2 breakpoints, this is important for matching to DB results later
 					}
 				}
 			}
@@ -630,15 +633,18 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 	# QUERY THE GBS FOR ANNOTATIONS AND LINKED BLOCKS
 	#############################################
 	
+	// Note: this function will strip the -1 and -2 from single block IDs (e.g. deletions) so that the block ID matches the DB
 	$GBS_results = fetch_linked_block_annotations_gbs($intersected_block_ids, $samples_to_query);
 	
 	if ($GBS_results === false) {
 		return false;
 	}
 	
-	// Returned:
-	//$GBS_results["links"][<link id>][<block id>][<method>/<chromosome>/<start>/<end>/<event_type>/<link_type>] = <value>
-	//$GBS_results["links"][<link id>][<block id>]["samples"][<sample name>]["annotations"][<tag name>] = <tag value>
+	//$GBS_results["blocks_per_link"][<link id>]["block_ids"][<block id>] = 1;
+	//$GBS_results["blocks_per_link"][<link id>]["link_type"] = <value>
+	
+	//$GBS_results["blocks"][<block id>][<method>/<chromosome>/<start>/<end>/<event_type>] = <value>
+	//$GBS_results["blocks"][<block id>]["samples"][<sample name>]["annotations"][<tag name>] = <tag value>
 	
 	//$GBS_results["unique_annotation_tags"] = <array of annotation tags>
 	
@@ -686,34 +692,44 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 	# CREATE OUTPUT STRINGS PER EVENT
 	#############################################
 	
-	foreach (array_keys($GBS_results["links"]) as $link_id) {
-		// Grab the first block ID for pulling out common information from it
-		$first_block_id = array_keys($GBS_results["links"][$link_id])[0];
-		$second_block_id = array_keys($GBS_results["links"][$link_id])[1];
-		
-		#############################################
-		
-		// Variable to store the breakpoints inside one or more genes (will be 1 or 2)
-		$num_breakpoints_inside_genes = 0;
-		
-		foreach (array_keys($GBS_results["links"][$link_id]) as $block_id) {			
-			// If the current block was found to overlap one or more genes
-			if (isset($intersection_results[$block_id])) {
-				// Iterate the count of breakpoints inside genes
-				$num_breakpoints_inside_genes++;
-			}
+	foreach (array_keys($GBS_results["blocks_per_link"]) as $link_id) {
+		// If the current link only has 1 block ID because it's a block type that has been artificially split into 2 blocks at the breakpoints (e.g. deletion)
+		if (count($GBS_results["blocks_per_link"][$link_id]["block_ids"]) == 1) {
+			// The GBS results list the results for the single block
+			$GBS_results_first_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0];
+			$GBS_results_second_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0];
+			
+			// The intersection results list the results per fake breakpoint
+			$intersection_first_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0]."-1";
+			$intersection_second_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0]."-2";
+		// Otherwise if there are multiple breakpoints for the event (e.g. inversion) the block IDs are the same between DB results and the intersection
+		} else {
+			$GBS_results_first_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0];
+			$GBS_results_second_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[1];
+			
+			$intersection_first_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0];
+			$intersection_second_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[1];
 		}
 		
 		#############################################
-			
+		
+		// If both blocks for the current link were found to overlap with genes
+		if (isset($intersection_results[$intersection_first_block_id], $intersection_results[$intersection_second_block_id])) {
+			$breakpoints_inside_genes = "both";
+		} else {
+			$breakpoints_inside_genes = "one";
+		}
+		
+		#############################################
+		
 		// Go through each sample, there shouldn't be a situation where 2 linked blocks don't have the same samples
-		foreach (array_keys($GBS_results["links"][$link_id][$first_block_id]["samples"]) as $sample) {
+		foreach (array_keys($GBS_results["blocks"][$GBS_results_first_block_id]["samples"]) as $sample) {
 			$output_string = "";
 		
 			#############################################
 			
-			// Link type 
-			$output_string = $GBS_results["links"][$link_id][$first_block_id]["link_type"]."\t";
+			// Link type
+			$output_string = $GBS_results["blocks_per_link"][$link_id]["link_type"]."\t";
 			
 			#############################################
 			
@@ -723,22 +739,22 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			#############################################
 			
 			// Method (same per intersection)
-			$output_string .= $GBS_results["links"][$link_id][$first_block_id]["method"]."\t";
-					
+			$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["method"]."\t";
+			
 			#############################################
 			
 			// Gene(s)
 			
 			// If the first block in the link was found to overlap one or more genes
-			if (isset($intersection_results[$first_block_id])) {
-				$block1_genes = $intersection_results[$first_block_id]["gene"];
+			if (isset($intersection_results[$intersection_first_block_id])) {
+				$block1_genes = $intersection_results[$intersection_first_block_id]["gene"];
 			} else {
 				$block1_genes = array(".");
 			}
 			
 			// If the second block in the link was found to overlap one or more genes
-			if (isset($intersection_results[$second_block_id])) {
-				$block2_genes = $intersection_results[$second_block_id]["gene"];
+			if (isset($intersection_results[$intersection_second_block_id])) {
+				$block2_genes = $intersection_results[$intersection_second_block_id]["gene"];
 			} else {
 				$block2_genes = array(".");
 			}
@@ -757,8 +773,8 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			#############################################
 			
 			// Block coordinates
-			$output_string .= $GBS_results["links"][$link_id][$first_block_id]["chromosome"].":".$GBS_results["links"][$link_id][$first_block_id]["start"]."-".$GBS_results["links"][$link_id][$first_block_id]["end"]."\t";
-			$output_string .= $GBS_results["links"][$link_id][$second_block_id]["chromosome"].":".$GBS_results["links"][$link_id][$second_block_id]["start"]."-".$GBS_results["links"][$link_id][$second_block_id]["end"]."\t";
+			$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_first_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_first_block_id]["end"]."\t";
+			$output_string .= $GBS_results["blocks"][$GBS_results_second_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_second_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_second_block_id]["end"]."\t";
 			
 			#############################################
 			
@@ -768,18 +784,18 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			foreach ($GBS_results["unique_annotation_tags"] as $annotation_tag) {
 				// For some tags, output just the value for the first block because we know values for both blocks are always the same
 				if (in_array($annotation_tag, array("SOMATICSCORE"))) {
-					$output_string .= $GBS_results["links"][$link_id][$first_block_id]["samples"][$sample]["annotations"][$annotation_tag]."\t";
+					$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["samples"][$sample]["annotations"][$annotation_tag]."\t";
 				} else {
 					// If the annotation tag exists for the current sample in the first block, print it out
-					if (isset($GBS_results["links"][$link_id][$first_block_id]["samples"][$sample]["annotations"][$annotation_tag])) {
-						$output_string .= $GBS_results["links"][$link_id][$first_block_id]["samples"][$sample]["annotations"][$annotation_tag]."-";
+					if (isset($GBS_results["blocks"][$GBS_results_first_block_id]["samples"][$sample]["annotations"][$annotation_tag])) {
+						$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["samples"][$sample]["annotations"][$annotation_tag]."-";
 					} else {
 						$output_string .= ".-";
 					}
 					
 					// If the annotation tag exists for the current sample in the second block, print it out
-					if (isset($GBS_results["links"][$link_id][$second_block_id]["samples"][$sample]["annotations"][$annotation_tag])) {
-						$output_string .= $GBS_results["links"][$link_id][$second_block_id]["samples"][$sample]["annotations"][$annotation_tag]."\t";
+					if (isset($GBS_results["blocks"][$GBS_results_second_block_id]["samples"][$sample]["annotations"][$annotation_tag])) {
+						$output_string .= $GBS_results["blocks"][$GBS_results_second_block_id]["samples"][$sample]["annotations"][$annotation_tag]."\t";
 					} else {
 						$output_string .= ".\t";
 					}
@@ -793,7 +809,7 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			#############################################
 			
 			// If the current intersect had both breakpoints inside one or more genes
-			if ($num_breakpoints_inside_genes == 2) {
+			if ($breakpoints_inside_genes == "both") {
 				$output_lines["both"][] = $output_string;
 			} else {
 				$output_lines["one"][] = $output_string;
