@@ -727,6 +727,11 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			
 			$intersection_first_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[0];
 			$intersection_second_block_id = array_keys($GBS_results["blocks_per_link"][$link_id]["block_ids"])[1];
+			
+			// Ignore any fusions where there is only 1 gene and it is the same for both breakpoints in event types where 2 breakpoints are stored separately (e.g. inversions)
+			if (isset($intersection_results[$intersection_first_block_id], $intersection_results[$intersection_second_block_id]) && count($intersection_results[$intersection_first_block_id]["gene"]) == 1 && count($intersection_results[$intersection_second_block_id]["gene"]) == 1 && $intersection_results[$intersection_first_block_id]["gene"][0] == $intersection_results[$intersection_second_block_id]["gene"][0]) {
+				continue;
+			}
 		}
 		
 		#############################################
@@ -791,8 +796,15 @@ function analysis_type_svfusions_gbs(array $samples_to_query, array $gene_list_t
 			#############################################
 			
 			// Block coordinates
-			$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_first_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_first_block_id]["end"]."\t";
-			$output_string .= $GBS_results["blocks"][$GBS_results_second_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_second_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_second_block_id]["end"]."\t";
+			
+			// If the current fusion is caused by a single block (e.g. deletion), display the block coordinates as the left and right breakpoints instead of the entire coordinates of the block as this is what was intersected
+			if ($GBS_results_first_block_id == $GBS_results_second_block_id) {
+				$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_first_block_id]["start"]."-".($GBS_results["blocks"][$GBS_results_first_block_id]["start"] + 1)."\t";
+				$output_string .= $GBS_results["blocks"][$GBS_results_second_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_second_block_id]["end"]."-".($GBS_results["blocks"][$GBS_results_second_block_id]["end"] + 1)."\t";
+			} else {
+				$output_string .= $GBS_results["blocks"][$GBS_results_first_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_first_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_first_block_id]["end"]."\t";
+				$output_string .= $GBS_results["blocks"][$GBS_results_second_block_id]["chromosome"].":".$GBS_results["blocks"][$GBS_results_second_block_id]["start"]."-".$GBS_results["blocks"][$GBS_results_second_block_id]["end"]."\t";
+			}
 			
 			#############################################
 			
