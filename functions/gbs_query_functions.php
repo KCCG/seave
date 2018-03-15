@@ -159,7 +159,8 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 		$sql .= "GBS.methods.method_name, ";
 		$sql .= "GBS.chromosomes.chromosome, ";
 		$sql .= "GBS.block_store.start, ";
-		$sql .= "GBS.block_store.end ";
+		$sql .= "GBS.block_store.end, ";
+		$sql .= "GBS.event_types.event_type ";
 
 	$sql .= "FROM ";
 		$sql .= "GBS.block_store ";
@@ -236,6 +237,7 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 		$GBS_results[$row["sample_name"]][$row["method_name"]][$row["id"]]["chromosome"] = $row["chromosome"];
 		$GBS_results[$row["sample_name"]][$row["method_name"]][$row["id"]]["start"] = $row["start"];
 		$GBS_results[$row["sample_name"]][$row["method_name"]][$row["id"]]["end"] = $row["end"];
+		$GBS_results[$row["sample_name"]][$row["method_name"]][$row["id"]]["event_type"] = $row["event_type"];
 	}
 
 	return $GBS_results;
@@ -251,7 +253,15 @@ function fetch_linked_block_annotations_gbs(array $block_ids, array $samples) {
 		return false;
 	}
 	
-	$sql = "SELECT ";
+	// Go through each block ID
+	for ($i = 0; $i < count($block_ids); $i++) {
+		// If the block ID ends with -1 or -2, strip these off (these are added for split breakpoints for single blocks (e.g. deletions which are 1 block but are split into 2 for this analysis)
+		if (preg_match("/\-[1-2]$/", $block_ids[$i])) {
+			$block_ids[$i] = substr($block_ids[$i], 0, -2);
+		}
+	}
+	
+	$sql = " SELECT ";
 		$sql .= "GBS.event_links.link_id, ";
 		$sql .= "GBS.block_store.id AS block_id, ";
 		$sql .= "GBS.samples.sample_name, ";
@@ -271,18 +281,30 @@ function fetch_linked_block_annotations_gbs(array $block_ids, array $samples) {
 	$sql .= "INNER JOIN GBS.samples ON GBS.sample_groups.sample_id = GBS.samples.id ";
 	$sql .= "INNER JOIN GBS.methods ON GBS.block_store.method_id = GBS.methods.id ";
 	$sql .= "INNER JOIN GBS.event_types ON GBS.block_store.event_type_id = GBS.event_types.id ";
-	$sql .= "INNER JOIN GBS.event_links ON GBS.block_store.id = GBS.event_links.block_store_id "; // Will only return results where there is a link ID present
-	$sql .= "INNER JOIN GBS.links ON GBS.event_links.link_id = GBS.links.id ";
-	$sql .= "INNER JOIN GBS.link_types ON GBS.links.link_type_id = GBS.link_types.id ";
+	$sql .= "LEFT JOIN GBS.event_links ON GBS.block_store.id = GBS.event_links.block_store_id "; // LEFT JOIN to still return all blocks where there is no link
+	$sql .= "LEFT JOIN GBS.links ON GBS.event_links.link_id = GBS.links.id ";
+	$sql .= "LEFT JOIN GBS.link_types ON GBS.links.link_type_id = GBS.link_types.id ";
 	$sql .= "LEFT OUTER JOIN GBS.annotation_values ON GBS.block_store.id = GBS.annotation_values.block_store_id ";
 	$sql .= "INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id ";
 	
 	$sql .= "WHERE ";
-		$sql .= "GBS.event_links.link_id IN (SELECT GBS.event_links.link_id FROM GBS.event_links WHERE GBS.event_links.block_store_id IN (";
-			$sql .= str_repeat("?, ", count($block_ids));
+		$sql .= "(";
+			// This will fetch linked blocks that may not be in the list of block id's to search, i.e. the breakpoint that did not overlap with a gene where its partner did
+			$sql .= "GBS.event_links.link_id IN (SELECT GBS.event_links.link_id FROM GBS.event_links WHERE GBS.event_links.block_store_id IN (";
+				$sql .= str_repeat("?, ", count($block_ids));
+				
+				$sql = substr($sql, 0, -2); // Remove the last ", " that was added above			
+			$sql .= ")) ";
 			
-			$sql = substr($sql, 0, -2); // Remove the last ", " that was added above			
-		$sql .= ")) ";
+			$sql .= "OR ";
+			
+			// This will fetch all remaining blocks that aren't in event_links because they are just single blocks (e.g. deletions)
+			$sql .= "GBS.block_store.id IN (";
+				$sql .= str_repeat("?, ", count($block_ids));
+			
+				$sql = substr($sql, 0, -2); // Remove the last ", " that was added above
+			$sql .= ") ";
+		$sql .= ") ";	
 	$sql .= "AND ";
 		$sql .= "GBS.samples.sample_name IN (";
 			$sql .= str_repeat("?, ", count($samples));
@@ -291,7 +313,7 @@ function fetch_linked_block_annotations_gbs(array $block_ids, array $samples) {
 		$sql .= ")";
 	$sql .= ";";
 	
-	$parameter_values = array_merge($block_ids, $samples);
+	$parameter_values = array_merge($block_ids, $block_ids, $samples);
 	
 	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
 	
@@ -304,16 +326,26 @@ function fetch_linked_block_annotations_gbs(array $block_ids, array $samples) {
 	$GBS_results = array();
 	
 	while ($row = $statement->fetch()) {
-		// Per block information (information that is at the block level)
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["method"] = $row["method_name"];
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["chromosome"] = $row["chromosome"];
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["start"] = $row["start"];
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["end"] = $row["end"];
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["event_type"] = $row["event_type"];
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["link_type"] = $row["link_type"]; // This should be at a higher level as it applies to all blocks for the current link but this would use more RAM so I'll just duplicate it per block for now
+		// If there is no link ID because the block ID doesn't have 2 breakpoints stored as separate blocks (e.g. deletion), create a link ID so downstream code still sees it as a separate fusion
+		if ($row["link_id"] == "") {
+			$row["link_id"] = $row["block_id"]."-nolink";
+			
+			$row["link_type"] = $row["event_type"];
+		}
+		
+		// Save all information per link
+		$GBS_results["blocks_per_link"][$row["link_id"]]["block_ids"][$row["block_id"]] = 1; // Do it like this as there are multiple rows per event + block from the DB
+		$GBS_results["blocks_per_link"][$row["link_id"]]["link_type"] = $row["link_type"];
+		
+		// Save all per block information
+		$GBS_results["blocks"][$row["block_id"]]["method"] = $row["method_name"];
+		$GBS_results["blocks"][$row["block_id"]]["chromosome"] = $row["chromosome"];
+		$GBS_results["blocks"][$row["block_id"]]["start"] = $row["start"];
+		$GBS_results["blocks"][$row["block_id"]]["end"] = $row["end"];
+		$GBS_results["blocks"][$row["block_id"]]["event_type"] = $row["event_type"];
 		
 		// Per sample information (information that is at the sample level)
-		$GBS_results["links"][$row["link_id"]][$row["block_id"]]["samples"][$row["sample_name"]]["annotations"][$row["tag_name"]] = $row["annotation_value"];
+		$GBS_results["blocks"][$row["block_id"]]["samples"][$row["sample_name"]]["annotations"][$row["tag_name"]] = $row["annotation_value"];
 		
 		// If the current annotation tag has not been seen before
 		if (!in_array($row["tag_name"], $unique_annotation_tags)) {
@@ -324,8 +356,11 @@ function fetch_linked_block_annotations_gbs(array $block_ids, array $samples) {
 	$GBS_results["unique_annotation_tags"] = $unique_annotation_tags;
 	
 	// Returned:
-	//$GBS_results["links"][<link id>][<block id>][<method>/<chromosome>/<start>/<end>/<event_type>/<link_type>] = <value>
-	//$GBS_results["links"][<link id>][<block id>]["samples"][<sample name>]["annotations"][<tag name>] = <tag value>
+	//$GBS_results["blocks_per_link"][<link id>]["block_ids"][<block id>] = 1;
+	//$GBS_results["blocks_per_link"][<link id>]["link_type"] = <value>
+	
+	//$GBS_results["blocks"][<block id>][<method>/<chromosome>/<start>/<end>/<event_type>] = <value>
+	//$GBS_results["blocks"][<block id>]["samples"][<sample name>]["annotations"][<tag name>] = <tag value>
 	
 	//$GBS_results["unique_annotation_tags"] = <array of annotation tags>
 	
@@ -460,7 +495,7 @@ function write_samples_methods_to_beds(array $sample_names, array $method_names)
 # WRITE EVENT TYPE BLOCKS TO BED FILES PER SAMPLE
 #############################################
 
-function write_event_types_per_sample_to_beds(array $sample_names, array $event_types) {
+function write_event_types_per_sample_to_beds(array $sample_names, array $event_types, array $split_event_types) {
 	// At least one sample and event type must be supplied
 	if (count($sample_names) == 0 || count($event_types) == 0) {
 		return false;
@@ -470,7 +505,7 @@ function write_event_types_per_sample_to_beds(array $sample_names, array $event_
 	# FETCH ALL BLOCKS FOR SAMPLES AND EVENT TYPES
 	#############################################
 	
-	$GBS_results = fetch_blocks_for_samples_methods_events_gbs($sample_names, array(), $event_types);
+	$GBS_results = fetch_blocks_for_samples_methods_events_gbs($sample_names, array(), array_merge($event_types, $split_event_types));
 	
 	if ($GBS_results === false) {
 		return false;
@@ -498,8 +533,15 @@ function write_event_types_per_sample_to_beds(array $sample_names, array $event_
 		foreach (array_keys($GBS_results[$sample_name]) as $method_name) {
 			// Go through each block
 			foreach (array_keys($GBS_results[$sample_name][$method_name]) as $block_id) {
-				// Create the line in the BED file for the sample + block
-				array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["start"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["end"]."\t".$block_id."\n");
+				// If the current event is one of the ones for which to split one block into 2 breakpoints because the block is not stored as 2 breakpoints (e.g. deletions)
+				if (in_array($GBS_results[$sample_name][$method_name][$block_id]["event_type"], $split_event_types)) {
+					// Create 2 lines in the BED file for the sample + split block into start and end and add a -1/-2 to the end of the block id to enable teasing apart what genes they overlapped with later
+					array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["start"]."\t".($GBS_results[$sample_name][$method_name][$block_id]["start"] + 1)."\t".$block_id."-1\n");
+					array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["end"]."\t".($GBS_results[$sample_name][$method_name][$block_id]["end"] + 1)."\t".$block_id."-2\n");
+				} else {
+					// Create the line in the BED file for the sample + block
+					array_push($bed_output, $GBS_results[$sample_name][$method_name][$block_id]["chromosome"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["start"]."\t".$GBS_results[$sample_name][$method_name][$block_id]["end"]."\t".$block_id."\n");
+				}
 			}
 			
 			$methods[] = $method_name;
