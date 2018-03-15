@@ -129,15 +129,6 @@ execute_query("MND1and2.db", "Mew", "hom_rec", 1);
 execute_query("MND1and2.db", "Rif", "hom_rec", 4);
 execute_query("MND1and2.db", "Zub", "hom_rec", 8);
 
-add_unique_gene_list_query_parameter("ID Gilissen 2014");
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "Mul", "het_dom", 51);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "far", "hom_rec", 14);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "DAp", "hom_rec", 7);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "Lou", "hom_rec", 3);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "Vuk", "hom_rec", 3);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "Ric", "hom_rec", 6);
-execute_query("CLINICAL_Tony_20150418_v7.hc.vqsr.CCDS.vep.db", "Kab", "hom_rec", 8);
-
 add_unique_gene_list_query_parameter("Craniofacial Orphanet May 2015");
 execute_query("CLP_total.vep.db", "SA", "het_dom", 2);
 execute_query("CLP_total.vep.db", "4527", "het_dom", 0);
