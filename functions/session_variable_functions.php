@@ -26,6 +26,8 @@ function clean_session($logout = NULL) {
 	$_SESSION["gbs_svfusions_gene_list"] = ""; // For the SV Fusions analysis type
 	$_SESSION["gbs_cnlessthan"] = ""; // For most the the analysis types
 	$_SESSION["gbs_cngreaterthan"] = ""; // For most the the analysis types
+	$_SESSION["gbs_minblocksize"] = ""; // For most the the analysis types
+	$_SESSION["gbs_exclude_failed_variants"] = ""; // For most the the analysis types
 	
 	// Regions for inclusion/exclusion manually entered
 	$_SESSION["regions"] = "";

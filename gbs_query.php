@@ -337,17 +337,17 @@
 											
 											// Add onclick javascript events to show analysis descriptions or options and hide/show the CN restriction section based on analysis type
 											if ($analysis_type == "gene_lists") {
-												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "sample_overlaps") {
-												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "method_overlaps") {
-												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "genomic_coordinates") {
-												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "rohmer") {
-												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none';\"";
+												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'none'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "svfusions") {
-												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none';\"";
+												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'none';\"";
 											}
 											
 											// Select the current analysis type if it was previously selected or one has not been selected before
@@ -392,7 +392,11 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Options</h3>";
+									echo "<h3>Description</h3>";
+									
+									echo "<p>This analysis type lets you find all variants that overlap with your genes of interest by one or more bases. For example, if a variant caller identifies a deletion at coordinates 1:20,000-30,000 and one of your genes of interest is at 1:29,000-45,000, this represents a 1,000bp overlap at 1:29,000-30,000.</p>";
+									
+									echo "<h3>Gene lists</h3>";
 									
 									echo "<h4>Select one or more gene lists</h4>";
 									
@@ -429,9 +433,9 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description</h3>";
+									echo "<h3>Description</h3>";
 									
-									echo "<p>Overlaps will be returned between samples where all methods are the same.</p>";
+									echo "<p>This analysis will help you discover locations in the genome where the same variant caller has identified variants that overlap between samples. Overlaps must be by at least 1 base to be returned. For example, if Sample1 has a deletion variant called by Method1 at coordinates 1:20,000-30,0000 and Sample2 has 2 duplication variants called by Method1 at 1:21,000-22,000 and 1:27,000-40,000, this means both of the variants in Sample2 overlap with the 1 variant in Sample1 and will be returned as two overlaps (at 1:21,000-22,000 and 1:27,000-30,000).</p>";
 								echo "</div>";
 								
 								// The method overlapping blocks selection div
@@ -442,9 +446,9 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description</h3>";
+									echo "<h3>Description</h3>";
 									
-									echo "<p>Overlaps will be returned between methods where the sample is the same.</p>";
+									echo "<p>This analysis will help you discover locations in the genome where multiple variant callers have independently found variants that overlap with one another in the same sample. Overlaps must be by at least 1 base to be returned. For example, if Sample1 has a deletion variant called by Method1 at coordinates 1:20,000-30,0000 and 2 deletion variants called by Method2 at 1:21,000-24,000 and 1:25,000-40,000, this represents 2 genomic locations where the methods have called overlapping variants (1:20,000-24,000 and 1:25,000-40,000).</p>";
 								echo "</div>";
 								
 								// The genomic coordinates blocks selection div
@@ -455,7 +459,11 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Options</h3>";
+									echo "<h3>Description</h3>";
+									
+									echo "<p>This analysis type lets you find all variants that overlap by one or more bases with lists of genomic coordinates that you would like to search.</p>";
+									
+									echo "<h3>Genomic coordinates</h3>";
 									
 									echo "<h4>Search region(s)</h4>";
 								
@@ -477,9 +485,9 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description</h3>";
+									echo "<h3>Description</h3>";
 									
-									echo "<p>First, shared RoH blocks are extracted for affected individuals. Then, any regions within these blocks that are shared with at least one of the unaffected individuals will be removed. The <strong>remaining regions are shared by affected individuals and not present in any unaffected individual</strong>.</p>";
+									echo "<p>This analysis lets you find regions of homozygosity in affected individuals that are more likely to harbour a pathogenic variant due to consanguinity. These regions are identified by first extracting all shared RoH blocks for all affected samples then subtracting any overlapping regions of homozygosity present in unaffected individuals. The remaining regions of interest are shared by affected individuals and not present in any unaffected individual.</p>";
 								echo "</div>";
 								
 								// The SV Fusions selection div
@@ -490,11 +498,11 @@
 								} else {
 									echo " style=\"display: none;\">";
 								}
-									echo "<h3 padding-bottom:10px;\">Description</h3>";
+									echo "<h3>Description</h3>";
 									
-									echo "<p>Returns all translocation and inversion events where one or both of the break points are inside a gene. Select a gene list or enter a manual gene list to restrict your search to specific genes, otherwise don't select anything to search the entire genome.</p>";
+									echo "<p>This analysis will help you find all variants that have the potential to cause a fusion between a gene and either another gene or an intergenic region of the genome. Select a gene list or enter a manual gene list to restrict your search to specific genes, otherwise don't select anything to search the entire genome.</p>";
 									
-									echo "<h3 padding-bottom:10px;\">Options</h3>";
+									echo "<h3>Gene lists</h3>";
 									
 									echo "<h4>Select one or more gene lists</h4>";
 									
@@ -525,6 +533,12 @@
 								
 								#############################################
 								
+								echo "<h3>Further filters</h3>";
+								
+								#############################################
+								# GREATER THAN/LESS THAN COPY NUMBER FILTER
+								#############################################
+								
 								// If the form has already been submitted, retain the value
 								if ($_SESSION["gbs_cnlessthan"] != "") {
 									$default_cn_less_than = $_SESSION["gbs_cnlessthan"];
@@ -548,7 +562,7 @@
 								}
 								
 								echo "<div class=\"row\" id=\"cnrestriction\"";
-								// Hide the copy number restriction if the analysis type used previous was ROHmer or SV Fusions
+								// Hide the copy number restriction if the analysis type used previously was ROHmer or SV Fusions
 								if (in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions"))) {
 									echo " style=\"display: none;\">";
 								} else {
@@ -573,9 +587,74 @@
 									echo "</section>";
 								echo "</div>";
 								
-								echo "<br>";
+								#############################################
+								# MINIMUM BLOCK SIZE FILTER
+								#############################################
+								
+								// If the form has already been submitted, retain the value
+								if ($_SESSION["gbs_minblocksize"] != "") {
+									$default_min_block_size = $_SESSION["gbs_minblocksize"];
+								// Otherwise determine the default value from the config file
+								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"]) && is_numeric($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"])) {
+									$default_min_block_size = $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"];
+								// Or use a default value if not in config file
+								} else {
+									$default_min_block_size = "0";
+								}
+								
+								echo "<div class=\"row\" id=\"minblocksizerestriction\"";
+								// Hide the block size restriction if the analysis type used previously was SV Fusions
+								if ($_SESSION["gbs_analysis_type"] == "svfusions") {
+									echo " style=\"display: none;\">";
+								} else {
+									echo ">";
+								}
+									echo "<section class=\"6u 12u(narrower)\">";
+										echo "<label for=\"minblocksize\" style=\"display: inline;\">Minimum block size (bp)</label><br>";
+										echo "<input type=\"range\" name=\"minblocksize\" id=\"minblocksize\" min=\"0\" max=\"100000\" step=\"1000\" value=\"".$default_min_block_size."\" oninput=\"document.querySelector('#minblocksizevalue').value = value;\">";
+										echo "<output for=\"minblocksize\" id=\"minblocksizevalue\">".$default_min_block_size."</output>";
+										
+										echo "<p class=\"query_label\">Perform queries on blocks this size or larger. <strong>To search all block sizes, set this value to 0.</strong></p>";
+									echo "</section>";
+								echo "</div>";
 								
 								#############################################
+								# EXCLUDE FAILED VARIANTS FILTER
+								#############################################
+								
+								// If the form has already been submitted, retain the value
+								if ($_SESSION["gbs_exclude_failed_variants"] != "") {
+									$default_exclude_failed_variants = $_SESSION["gbs_exclude_failed_variants"];
+								// Determine the default value from the config file
+								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_exclude_failed_variants"]) && $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_exclude_failed_variants"] == 1) {
+									$default_exclude_failed_variants = 1;
+								// Default value if not in config file
+								} else {
+									$default_exclude_failed_variants = 1;
+								}
+								
+								echo "<div class=\"row\"id=\"failedvariantsrestriction\"";
+								// Hide the exclude failed variants filter if the analysis type used previously was ROHmer
+								if ($_SESSION["gbs_analysis_type"] == "rohmer") {
+									echo " style=\"display: none;\">";
+								} else {
+									echo ">";
+								}
+									echo "<section class=\"6u 12u(narrower)\">";
+										echo "<input type=\"checkbox\" id=\"exclude_failed_variants\" name=\"exclude_failed_variants\" value=\"true\"";
+											// If the form has not been submitted yet, has been submitted as true or is in the config file as true
+											if ($default_exclude_failed_variants == 1) {
+												echo " checked=\"\">";
+											} else {
+												echo ">";
+											}
+										echo "<label for=\"exclude_failed_variants\">Exclude Failed Variants</label>";
+									echo "</section>";
+								echo "</div>";
+								
+								#############################################
+								
+								echo "<br>";
 								
 								echo "<input type=\"submit\" value=\"Launch query\">";
 							
