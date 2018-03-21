@@ -1016,7 +1016,7 @@ function mysql_integration($result) {
 				######################
 				
 				// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-				$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), "all", "do_not_restrict_cn");
+				$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), "all", "do_not_restrict_cn", "do_not_restrict_event_size");
 				
 				// Populate the GBS query parameters
 				foreach ($samples_to_query as $sample) {

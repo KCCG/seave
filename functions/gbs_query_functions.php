@@ -6,7 +6,7 @@
 # CREATE SQL QUERY STRING TO QUERY THE GBS FOR A GIVEN METHOD AND NUMBER OF SAMPLES
 #############################################
 
-function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_flag) {
+function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_flag, $event_size_restriction_flag) {
 	$sql = "SELECT ";
 		$sql .= "GBS.samples.sample_name, ";
 		$sql .= "GBS.event_types.event_type, ";
@@ -18,7 +18,7 @@ function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_fla
 		$sql .= "GBS.query_coordinates.chromosome AS 'query_chromosome', "; // Query chromosome
 		$sql .= "GBS.query_coordinates.query_start AS 'query_start', "; // Query start position
 		$sql .= "GBS.query_coordinates.query_end AS 'query_end', "; // Query end position
-		$sql .= "(SELECT GBS.annotation_tags.tag_name FROM GBS.annotation_tags WHERE GBS.annotation_tags.id = GBS.annotation_values.annotation_id), ";
+		$sql .= "GBS.annotation_tags.tag_name, ";
 		$sql .= "GBS.annotation_values.annotation_value ";
 		
 	$sql .= "FROM ";
@@ -75,6 +75,7 @@ function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_fla
 	$sql .= "INNER JOIN GBS.samples ON GBS.sample_groups.sample_id = GBS.samples.id ";
 	$sql .= "INNER JOIN GBS.methods ON GBS.block_store.method_id = GBS.methods.id ";
 	$sql .= "LEFT OUTER JOIN GBS.annotation_values ON GBS.block_store.id = GBS.annotation_values.block_store_id "; // LEFT OUTER JOIN means extra rows will be returned if annotation tags/values are present, otherwise just 1 row will be returned with null for annotation_tag and annotation_value
+	$sql .= "INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id ";
 	
 	$sql .= "WHERE ";
 		$sql .= "GBS.samples.sample_name IN (";
@@ -106,6 +107,26 @@ function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_fla
 					
 					$sql .= "GBS.block_store.event_cn IS NULL";
 				$sql .= ")";
+		}
+		
+		// If failed variants should be excluded
+		if ($_SESSION["gbs_exclude_failed_variants"] == "1") {
+			$sql .= " AND ";
+				$sql .= "(";
+					// If there are no FT or FILTER annotation tags for the current block
+					$sql .= "(SELECT COUNT(*) FROM GBS.annotation_values INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id WHERE GBS.annotation_values.block_store_id = GBS.block_store.id AND GBS.annotation_tags.tag_name IN ('FT', 'FILTER')) = 0 ";
+					
+					$sql .= "OR ";
+					
+					// If the number of 'PASS' values for FT or FILTER annotation tags is 1 or more (can't just use this statement as a value of 0 could be because there are no FT/FILTER tags for the current block or there are but they aren't PASS)
+					$sql .= "(SELECT COUNT(*) FROM GBS.annotation_values INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id WHERE GBS.annotation_values.block_store_id = GBS.block_store.id AND GBS.annotation_tags.tag_name IN ('FT', 'FILTER') AND GBS.annotation_values.annotation_value = 'PASS') > 0";
+				$sql .= ")";
+		}
+		
+		// If a minimum event size is to be returned
+		if ($event_size_restriction_flag == "restrict_event_size") {
+			$sql .= " AND ";
+				$sql .= "(GBS.block_store.end - GBS.block_store.start) >= ?";
 		}
 	$sql .= ";";
 	
@@ -217,18 +238,53 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 			$sql .= ") ";
 	}
 	
+	// If failed variants should be excluded
+	if ($_SESSION["gbs_exclude_failed_variants"] == "1") {
+		$sql .= " AND ";
+			$sql .= "(";
+				// If there are no FT or FILTER annotation tags for the current block
+				$sql .= "(SELECT COUNT(*) FROM GBS.annotation_values INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id WHERE GBS.annotation_values.block_store_id = GBS.block_store.id AND GBS.annotation_tags.tag_name IN ('FT', 'FILTER')) = 0 ";
+				
+				$sql .= "OR ";
+				
+				// If the number of 'PASS' values for FT or FILTER annotation tags is 1 or more (can't just use this statement as a value of 0 could be because there are no FT/FILTER tags for the current block or there are but they aren't PASS)
+				$sql .= "(SELECT COUNT(*) FROM GBS.annotation_values INNER JOIN GBS.annotation_tags ON GBS.annotation_values.annotation_id = GBS.annotation_tags.id WHERE GBS.annotation_values.block_store_id = GBS.block_store.id AND GBS.annotation_tags.tag_name IN ('FT', 'FILTER') AND GBS.annotation_values.annotation_value = 'PASS') > 0";
+			$sql .= ")";
+	}
+	
+	// If the analysis type is not SV Fusions (which only has tiny event sizes) and if a minimum event size is to be returned, add the SQL clause
+	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_mineventsize"])) {
+		$sql .= " AND ";
+			$sql .= "(GBS.block_store.end - GBS.block_store.start) >= ?";
+	}
+	
 	$sql .= ";";
 	
+	#############################################
+	
 	$parameter_values = array_merge($sample_names, $method_names, $event_types);
+	
+	#############################################
 	
 	// If the analysis type is not one that doesn't use copy number restrictions and a copy number restriction has been specified, add the SQL parameters
 	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && is_numeric($_SESSION["gbs_cngreaterthan"]) && is_numeric($_SESSION["gbs_cnlessthan"])) {
 		array_push($parameter_values, $_SESSION["gbs_cnlessthan"], $_SESSION["gbs_cngreaterthan"]);
 	}
 	
+	#############################################
+	
+	// If the analysis type is not SV Fusions (which only has tiny event sizes) and if a minimum event size is to be returned, add the SQL clause
+	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_mineventsize"])) {
+		$parameter_values[] = $_SESSION["gbs_mineventsize"];
+	}
+	
+	#############################################
+	
 	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
 	
 	$statement->execute($parameter_values);
+	
+	#############################################
 	
 	// Create the results array
 	$GBS_results = array();

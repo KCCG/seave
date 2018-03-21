@@ -26,14 +26,27 @@
 	
 	$_SESSION["gbs_family"] = htmlspecialchars($_POST["family"], ENT_QUOTES, 'UTF-8');
 	
-	// If a numeric greater than copy number has been submitted, update the global value
+	// If a numeric greater than copy number has been submitted, update the global value - for analysis types that don't display this parameter in the query form, the downstream functions will ignore the value so there is no need to reset it, keeping it set means it will be saved for rerunning analyses that do use it
 	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cngreaterthan"]) && is_numeric($_POST["cngreaterthan"])) {
 		$_SESSION["gbs_cngreaterthan"] = htmlspecialchars($_POST["cngreaterthan"], ENT_QUOTES, 'UTF-8');
 	}
 	
-	// If a numeric less than copy number has been submitted, update the global value
+	// If a numeric less than copy number has been submitted, update the global value - for analysis types that don't display this parameter in the query form, the downstream functions will ignore the value so there is no need to reset it, keeping it set means it will be saved for rerunning analyses that do use it
 	if (!in_array($_SESSION["gbs_analysis_type"], array("rohmer", "svfusions")) && isset($_POST["cnlessthan"]) && is_numeric($_POST["cnlessthan"])) {
 		$_SESSION["gbs_cnlessthan"] = htmlspecialchars($_POST["cnlessthan"], ENT_QUOTES, 'UTF-8');
+	}
+	
+	// If a numeric minimum event size has been submitted, update the global value, otherwise reset to default - for analysis types that don't display this parameter in the query form, the downstream functions will ignore the value so there is no need to reset it, keeping it set means it will be saved for rerunning analyses that do use it
+	if (isset($_POST["mineventsize"]) && is_numeric($_POST["mineventsize"])) {
+		$_SESSION["gbs_mineventsize"] = $_POST["mineventsize"];
+	}
+	
+	// If a exclude failed variants filter has been submitted, that means it was selected as true, so update the global value to the true value
+	if (isset($_POST["exclude_failed_variants"])) {
+		$_SESSION["gbs_exclude_failed_variants"] = "1";
+	// If the analysis type is not ROHmer, which doesn't use the exclude failed variants filter, then no POST value means the box was unticked so the value should be set to the false value
+	} elseif ($_SESSION["gbs_analysis_type"] != "rohmer") {
+		$_SESSION["gbs_exclude_failed_variants"] = "2";
 	}
 	
 	#############################################
