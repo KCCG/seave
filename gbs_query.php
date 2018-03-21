@@ -337,17 +337,17 @@
 											
 											// Add onclick javascript events to show analysis descriptions or options and hide/show the CN restriction section based on analysis type
 											if ($analysis_type == "gene_lists") {
-												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('mineventsizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "sample_overlaps") {
-												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('mineventsizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "method_overlaps") {
-												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('mineventsizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "genomic_coordinates") {
-												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('mineventsizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "rohmer") {
-												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'none'; document.getElementById('mineventsizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'none'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "svfusions") {
-												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('mineventsizerestriction').style.display = 'none';\"";
+												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'none';\"";
 											}
 											
 											// Select the current analysis type if it was previously selected or one has not been selected before
@@ -588,33 +588,33 @@
 								echo "</div>";
 								
 								#############################################
-								# MINIMUM EVENT SIZE FILTER
+								# MINIMUM BLOCK SIZE FILTER
 								#############################################
 								
 								// If the form has already been submitted, retain the value
-								if ($_SESSION["gbs_mineventsize"] != "") {
-									$default_min_event_size = $_SESSION["gbs_mineventsize"];
+								if ($_SESSION["gbs_minblocksize"] != "") {
+									$default_min_block_size = $_SESSION["gbs_minblocksize"];
 								// Otherwise determine the default value from the config file
-								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_mineventsize"]) && is_numeric($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_mineventsize"])) {
-									$default_min_event_size = $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_mineventsize"];
+								} elseif (isset($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"]) && is_numeric($GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"])) {
+									$default_min_block_size = $GLOBALS["configuration_file"]["default_query_parameters"]["default_gbs_minblocksize"];
 								// Or use a default value if not in config file
 								} else {
-									$default_min_event_size = "0";
+									$default_min_block_size = "0";
 								}
 								
-								echo "<div class=\"row\" id=\"mineventsizerestriction\"";
-								// Hide the event size restriction if the analysis type used previously was SV Fusions
+								echo "<div class=\"row\" id=\"minblocksizerestriction\"";
+								// Hide the block size restriction if the analysis type used previously was SV Fusions
 								if ($_SESSION["gbs_analysis_type"] == "svfusions") {
 									echo " style=\"display: none;\">";
 								} else {
 									echo ">";
 								}
 									echo "<section class=\"6u 12u(narrower)\">";
-										echo "<label for=\"mineventsize\" style=\"display: inline;\">Minimum event size (bp)</label><br>";
-										echo "<input type=\"range\" name=\"mineventsize\" id=\"mineventsize\" min=\"0\" max=\"100000\" step=\"5000\" value=\"".$default_min_event_size."\" oninput=\"document.querySelector('#mineventsizevalue').value = value;\">";
-										echo "<output for=\"mineventsize\" id=\"mineventsizevalue\">".$default_min_event_size."</output>";
+										echo "<label for=\"minblocksize\" style=\"display: inline;\">Minimum block size (bp)</label><br>";
+										echo "<input type=\"range\" name=\"minblocksize\" id=\"minblocksize\" min=\"0\" max=\"100000\" step=\"1000\" value=\"".$default_min_block_size."\" oninput=\"document.querySelector('#minblocksizevalue').value = value;\">";
+										echo "<output for=\"minblocksize\" id=\"minblocksizevalue\">".$default_min_block_size."</output>";
 										
-										echo "<p class=\"query_label\">Return variants with at least this number of bases impacted, any variants impacting fewer variants will be ignored. <strong>To return all variants, set this value to 0.</strong></p>";
+										echo "<p class=\"query_label\">Perform queries on blocks this size or larger. <strong>To search all block sizes, set this value to 0.</strong></p>";
 									echo "</section>";
 								echo "</div>";
 								
@@ -634,7 +634,7 @@
 								}
 								
 								echo "<div class=\"row\"id=\"failedvariantsrestriction\"";
-								// Hide the event size restriction if the analysis type used previously was ROHmer
+								// Hide the exclude failed variants filter if the analysis type used previously was ROHmer
 								if ($_SESSION["gbs_analysis_type"] == "rohmer") {
 									echo " style=\"display: none;\">";
 								} else {

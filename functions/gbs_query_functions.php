@@ -6,7 +6,7 @@
 # CREATE SQL QUERY STRING TO QUERY THE GBS FOR A GIVEN METHOD AND NUMBER OF SAMPLES
 #############################################
 
-function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_flag, $event_size_restriction_flag) {
+function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_flag, $block_size_restriction_flag) {
 	$sql = "SELECT ";
 		$sql .= "GBS.samples.sample_name, ";
 		$sql .= "GBS.event_types.event_type, ";
@@ -123,8 +123,8 @@ function query_blocks_by_position_gbs($num_samples, $method, $cn_restriction_fla
 				$sql .= ")";
 		}
 		
-		// If a minimum event size is to be returned
-		if ($event_size_restriction_flag == "restrict_event_size") {
+		// If a minimum block size is to be searched
+		if ($block_size_restriction_flag == "restrict_block_size") {
 			$sql .= " AND ";
 				$sql .= "(GBS.block_store.end - GBS.block_store.start) >= ?";
 		}
@@ -252,8 +252,8 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 			$sql .= ")";
 	}
 	
-	// If the analysis type is not SV Fusions (which only has tiny event sizes) and if a minimum event size is to be returned, add the SQL clause
-	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_mineventsize"])) {
+	// If the analysis type is not SV Fusions (which only has tiny block sizes) and if a minimum block size is to be used for queries, add the SQL clause
+	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_minblocksize"])) {
 		$sql .= " AND ";
 			$sql .= "(GBS.block_store.end - GBS.block_store.start) >= ?";
 	}
@@ -273,9 +273,9 @@ function fetch_blocks_for_samples_methods_events_gbs(array $sample_names, array 
 	
 	#############################################
 	
-	// If the analysis type is not SV Fusions (which only has tiny event sizes) and if a minimum event size is to be returned, add the SQL clause
-	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_mineventsize"])) {
-		$parameter_values[] = $_SESSION["gbs_mineventsize"];
+	// If the analysis type is not SV Fusions (which only has tiny block sizes) and if a minimum block size is to be used for queries, add the parameter
+	if ($_SESSION["gbs_analysis_type"] != "svfusions" && is_numeric($_SESSION["gbs_minblocksize"])) {
+		$parameter_values[] = $_SESSION["gbs_minblocksize"];
 	}
 	
 	#############################################

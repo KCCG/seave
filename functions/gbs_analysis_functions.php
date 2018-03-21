@@ -108,7 +108,7 @@ function analysis_type_method_overlaps_gbs($samples_to_query) {
 		$sql_GBS_temporary = create_temporary_query_coordinates_table_gbs($total_block_count_to_search);
 		
 		// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-		$sql_GBS = query_blocks_by_position_gbs(1, "all", "do_not_restrict_cn", "do_not_restrict_event_size"); // CN and event size already restricted by write_samples_methods_to_beds()
+		$sql_GBS = query_blocks_by_position_gbs(1, "all", "do_not_restrict_cn", "do_not_restrict_block_size"); // CN and block size already restricted by write_samples_methods_to_beds()
 		
 		// Populate the GBS query parameters (only 1 sample)
 		$query_parameters_GBS[] = $sample_name;
@@ -342,7 +342,7 @@ function analysis_type_sample_overlaps_gbs($samples_to_query, $methods_to_query)
 		$sql_GBS_temporary = create_temporary_query_coordinates_table_gbs($total_block_count_to_search);
 		
 		// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-		$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), $method_name, "do_not_restrict_cn", "do_not_restrict_event_size"); // CN and event size already restricted by write_samples_methods_to_beds()
+		$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), $method_name, "do_not_restrict_cn", "do_not_restrict_block_size"); // CN and block size already restricted by write_samples_methods_to_beds()
 		
 		// Populate the GBS query parameters
 		foreach ($samples_to_query as $sample) {
@@ -1004,7 +1004,7 @@ function analysis_type_rohmer_gbs(array $affected_samples_to_query, array $unaff
 	$sql_GBS_temporary = create_temporary_query_coordinates_table_gbs($total_block_count_to_search);
 	
 	// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-	$sql_GBS = query_blocks_by_position_gbs(count($affected_samples_to_query), "ROHmer", "do_not_restrict_cn", "do_not_restrict_event_size"); // No CN for this data so no need to restrict and event size restricted in write_sampled_methods_to_beds
+	$sql_GBS = query_blocks_by_position_gbs(count($affected_samples_to_query), "ROHmer", "do_not_restrict_cn", "do_not_restrict_block_size"); // No CN for this data so no need to restrict and block size restricted in write_sampled_methods_to_beds
 	
 	// Populate the GBS query parameters
 	foreach ($affected_samples_to_query as $sample) {
@@ -1163,17 +1163,17 @@ function analysis_type_genomic_coordinates_gbs(array $samples_to_query) {
 		$restrict_cn_parameter = "do_not_restrict_cn";
 	}
 	
-	// Add the minimum event size parameter
-	if (is_numeric($_SESSION["gbs_mineventsize"])) {
-		$restrict_event_size_parameter = "restrict_event_size";
+	// Add the minimum block size parameter
+	if (is_numeric($_SESSION["gbs_minblocksize"])) {
+		$restrict_block_size_parameter = "restrict_block_size";
 		
-		$query_parameters_GBS[] = $_SESSION["gbs_mineventsize"];
+		$query_parameters_GBS[] = $_SESSION["gbs_minblocksize"];
 	} else {
-		$restrict_event_size_parameter = "do_not_restrict_event_size";
+		$restrict_block_size_parameter = "do_not_restrict_block_size";
 	}
 	
 	// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-	$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), "all", $restrict_cn_parameter, $restrict_event_size_parameter);
+	$sql_GBS = query_blocks_by_position_gbs(count($samples_to_query), "all", $restrict_cn_parameter, $restrict_block_size_parameter);
 	
 	######################
 	
@@ -1404,7 +1404,7 @@ function analysis_type_gene_lists_gbs(array $gene_list, array $samples_to_query)
 		$sql_GBS_temporary = create_temporary_query_coordinates_table_gbs($total_block_count_to_search);
 		
 		// Create the SQL to query the GBS for all blocks overlapping with the temporary query coordinates table
-		$sql_GBS = query_blocks_by_position_gbs(1, $merged_intersect_bed_paths[$sample_method_intersect]["method"], "do_not_restrict_cn", "do_not_restrict_event_size"); // CN and event size already restricted by write_samples_methods_to_beds()
+		$sql_GBS = query_blocks_by_position_gbs(1, $merged_intersect_bed_paths[$sample_method_intersect]["method"], "do_not_restrict_cn", "do_not_restrict_block_size"); // CN and block size already restricted by write_samples_methods_to_beds()
 		
 		// Populate the GBS query parameters (only 1 sample and method)
 		array_push($query_parameters_GBS, $merged_intersect_bed_paths[$sample_method_intersect]["sample"], $merged_intersect_bed_paths[$sample_method_intersect]["method"]);

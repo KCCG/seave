@@ -36,9 +36,9 @@
 		$_SESSION["gbs_cnlessthan"] = htmlspecialchars($_POST["cnlessthan"], ENT_QUOTES, 'UTF-8');
 	}
 	
-	// If a numeric minimum event size has been submitted, update the global value, otherwise reset to default - for analysis types that don't display this parameter in the query form, the downstream functions will ignore the value so there is no need to reset it, keeping it set means it will be saved for rerunning analyses that do use it
-	if (isset($_POST["mineventsize"]) && is_numeric($_POST["mineventsize"])) {
-		$_SESSION["gbs_mineventsize"] = $_POST["mineventsize"];
+	// If a numeric minimum block size has been submitted, update the global value, otherwise reset to default - for analysis types that don't display this parameter in the query form, the downstream functions will ignore the value so there is no need to reset it, keeping it set means it will be saved for rerunning analyses that do use it
+	if (isset($_POST["minblocksize"]) && is_numeric($_POST["minblocksize"])) {
+		$_SESSION["gbs_minblocksize"] = $_POST["minblocksize"];
 	}
 	
 	// If a exclude failed variants filter has been submitted, that means it was selected as true, so update the global value to the true value
