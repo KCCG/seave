@@ -411,19 +411,19 @@ function fetch_gbs_samples_presence(array $sample_names) {
 	if (count($sample_names) == 0) {
 		return $GBS_presence;
 	}
-	
+
 	$sql = "SELECT DISTINCT ";
 		$sql .= "GBS.methods.method_name, ";
 		$sql .= "GBS.samples.sample_name, ";
 		$sql .= "GBS.event_types.event_type ";
 	
 	$sql .= "FROM ";
-		$sql .= "GBS.block_store ";
+		$sql .= "GBS.samples ";
 		
-	$sql .= "INNER JOIN GBS.sample_groups ON GBS.block_store.id = GBS.sample_groups.block_store_id ";
-	$sql .= "INNER JOIN GBS.samples ON GBS.sample_groups.sample_id = GBS.samples.id ";
-	$sql .= "INNER JOIN GBS.methods ON GBS.block_store.method_id = GBS.methods.id ";
-	$sql .= "INNER JOIN GBS.event_types ON GBS.block_store.event_type_id = GBS.event_types.id ";
+	$sql .= "INNER JOIN GBS.sample_groups ON GBS.samples.id = GBS.sample_groups.sample_id "; // This ensures that the sample name MUST have at least one entry in sample_groups and by extension at least one block of data
+	$sql .= "LEFT JOIN GBS.block_store ON GBS.sample_groups.block_store_id = GBS.block_store.id "; // Only JOIN those blocks for which one of the samples has one or more blocks
+	$sql .= "LEFT JOIN GBS.methods ON GBS.block_store.method_id = GBS.methods.id ";
+	$sql .= "LEFT JOIN GBS.event_types ON GBS.block_store.event_type_id = GBS.event_types.id ";
 	
 	$sql .= "WHERE ";
 		$sql .= "GBS.samples.sample_name IN (";
