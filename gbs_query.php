@@ -574,7 +574,7 @@
 										echo "<input type=\"range\" name=\"cnlessthan\" id=\"cnlessthan\" min=\"0\" max=\"2\" step=\"0.1\" value=\"".$default_cn_less_than."\" oninput=\"document.querySelector('#cnlessthanvalue').value = value;\">";
 										echo "<output for=\"cnlessthan\" id=\"cnlessthanvalue\">".$default_cn_less_than."</output>";
 										
-										echo "<p class=\"query_label\">Return deletion variants with a copy number below this value. <strong>To return all deletion variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+										echo "<p class=\"query_label\">Return deletion variants with a copy number equal to or below this value. <strong>To return all deletion variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
 									echo "</section>";
 									
 									// Greater than
@@ -583,7 +583,7 @@
 										echo "<input type=\"range\" name=\"cngreaterthan\" id=\"cngreaterthan\" min=\"2\" max=\"15\" step=\"0.5\" value=\"".$default_cn_greater_than."\" oninput=\"document.querySelector('#cngreaterthanvalue').value = value;\">";
 										echo "<output for=\"cngreaterthan\" id=\"cngreaterthanvalue\">".$default_cn_greater_than."</output>";
 										
-										echo "<p class=\"query_label\">Return amplified variants with a copy number above this value. <strong>To return all amplified variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
+										echo "<p class=\"query_label\">Return amplified variants with a copy number equal to or above this value. <strong>To return all amplified variants, set this value to 2.</strong> All variants with no copy number will be returned.</p>";
 									echo "</section>";
 								echo "</div>";
 								
