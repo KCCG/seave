@@ -713,6 +713,7 @@
 		array_push($column_order, "Orphanet Disorders");
 		array_push($column_order, "Is Orphanet AR");
 		array_push($column_order, "Is Orphanet AD");
+		array_push($column_order, "Genomics England PanelApp");
 		array_push($column_order, "ClinVar Variation ID");
 		array_push($column_order, "ClinVar Clinical Significance");
 		array_push($column_order, "ClinVar Trait");

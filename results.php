@@ -213,6 +213,9 @@
 											} elseif (isset($column_index{"COSMIC ID"}) && $column_index{"COSMIC ID"} == $i && $columns[$column_index{"COSMIC ID"}] != "No Result") {
 												$cosmic_numbers = explode(",", $columns[$column_index{"COSMIC ID"}]); // Multiple COSMIC IDs are semicolon separated in cells, split by semicolon so only the first one can be used for the link
 												print_table_cell($columns[$i], "http://grch37-cancer.sanger.ac.uk/cosmic/search?q=".$cosmic_numbers[0], "", "");
+											// Link out to PanelApp for the Genomics England PanelApp column
+											} elseif (isset($column_index["Genomics England PanelApp"]) && $column_index["Genomics England PanelApp"] == $i && $columns[$column_index["Genomics England PanelApp"]] != "No Result") {
+												print_table_cell($columns[$i], "https://panelapp.genomicsengland.co.uk/panels/genes/".$columns[$column_index["Gene"]], "", "");								
 											// Link out to OMIM for the OMIM Numbers column
 											} elseif (isset($column_index{"OMIM Numbers"}) && $column_index{"OMIM Numbers"} == $i && $columns[$column_index{"OMIM Numbers"}] != "None") {
 												$omim_numbers = explode(";", $columns[$column_index{"OMIM Numbers"}]); // Multiple OMIM numbers are semicolon separated in cells, split by semicolon so only the first one can be used for the link
@@ -520,6 +523,7 @@
 						column_filter("gemini", $column_index, array("Orphanet Disorders"), "Orphanet");
 						column_filter("gemini", $column_index, array("ClinVar Variation ID", "ClinVar Clinical Significance", "ClinVar Trait"), "ClinVar");							
 						column_filter("gemini", $column_index, array("COSMIC ID", "COSMIC Count", "COSMIC Primary Site", "COSMIC Primary Histology"), "COSMIC");
+						column_filter("gemini", $column_index, array("Genomics England PanelApp"), "Genomics England PanelApp");
 						column_filter("gemini", $column_index, array("CGC Associations", "CGC Mutation Types", "CGC Translocation Partners"), "COSMIC Census");
 						column_filter("gemini", $column_index, array("MITOMAP Disease"), "MITOMAP");
 						

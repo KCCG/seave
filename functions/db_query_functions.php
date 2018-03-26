@@ -824,6 +824,11 @@ function mysql_integration($result) {
 		$result["MGRB AF"] = array();
 	}
 	
+	if (isset($GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"]) && $GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"] == 1) {
+		// Set the results hash up for containing an array for each of the result columns to expect from the GE PanelApp
+		$result["Genomics England PanelApp"] = array();
+	}
+	
 	// If samples to query are present in the GBS
 	if (isset($gbs_samples_present)) {
 		// Set the results hash up for containing an array for each of the result column to expect from the GBS
@@ -845,6 +850,7 @@ function mysql_integration($result) {
 	$sql_MGRB_AF = "";
 	$sql_GBS = "";
 	$sql_GBS_temporary = "";
+	$sql_ge_panelapp = "";
 	
 	$query_parameters_dbnsfp = array();
 	$query_parameters_rvis = array();
@@ -857,6 +863,7 @@ function mysql_integration($result) {
 	$query_parameters_MGRB_AF = array();
 	$query_parameters_GBS = array();
 	$query_parameters_GBS_temporary = array();
+	$query_parameters_ge_panelapp = array();
 	
 	######################
 	# Create MySQL queries
@@ -1071,6 +1078,30 @@ function mysql_integration($result) {
 			}
 			
 			######################
+			
+			// Only query Genomics England PanelApp if the configuration file specifies it
+			if (isset($GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"]) && $GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"] == 1) {
+				// Create the base PanelApp query if it has not been set yet
+				if ($sql_ge_panelapp == "") {
+					$sql_ge_panelapp .= "SELECT ";
+						$sql_ge_panelapp .= "genes.symbol, ";
+						$sql_ge_panelapp .= "panels.name, ";
+						$sql_ge_panelapp .= "genes_in_panels.confidence_level ";
+					$sql_ge_panelapp .= "FROM ";
+						$sql_ge_panelapp .= "GEPANELAPP.genes ";
+					$sql_ge_panelapp .= "LEFT JOIN GEPANELAPP.genes_in_panels ON GEPANELAPP.genes.id = GEPANELAPP.genes_in_panels.gene_id ";
+					$sql_ge_panelapp .= "LEFT JOIN GEPANELAPP.panels ON GEPANELAPP.genes_in_panels.panel_id = GEPANELAPP.panels.id ";
+					$sql_ge_panelapp .= "WHERE ";
+				}
+				
+				// Add the gene-specific info
+				$sql_ge_panelapp .= "(genes.symbol = ?) OR ";
+				
+				// Populate the query parameters
+				$query_parameters_ge_panelapp[] = $result["gene"][$i];
+			}
+			
+			######################
 
 			// Only query OMIM if the configuration file specifies it
 			if (isset($GLOBALS["configuration_file"]["query_databases"]["omim"]) && $GLOBALS["configuration_file"]["query_databases"]["omim"] == 1) {				
@@ -1225,6 +1256,33 @@ function mysql_integration($result) {
 	            } else {
 		            $cosmic_cgc_results[$mysql_result[$result_id][0]]["CGC Translocation Partners"] = $mysql_result[$result_id][3];
 				}
+            }
+	    // Ask for the next result
+	    } while ($statement->nextRowset());
+	}
+	
+	######################
+	
+	// If the query is not empty, close it off and run it
+	if (strlen($sql_ge_panelapp) > 0) {
+		// Remove the last " OR " added by the loop
+		$sql_ge_panelapp = substr($sql_ge_panelapp, 0, -4);
+		
+		// Close off the query
+		$sql_ge_panelapp .= ";"; 
+		
+		// Perform a multi-query by sending all queries at once
+		$statement = $GLOBALS["mysql_connection"]->prepare($sql_ge_panelapp);
+	
+		$statement->execute($query_parameters_ge_panelapp);
+		
+	    do {
+		    $mysql_result = $statement->fetchAll(PDO::FETCH_NUM); // Fetches as $mysql_result[row array (0,1,2,3...)][column array (0,1,2,3...)] = value
+		    
+            foreach (array_keys($mysql_result) as $result_id) {
+				// Save the Genomics England PanelApp results
+	            $ge_panelapp_results[$mysql_result[$result_id][0]][$mysql_result[$result_id][2]][] = $mysql_result[$result_id][1];
+	            // Format: $ge_panelapp_results[<gene>][<confidence level>] = array([<panel name>])
             }
 	    // Ask for the next result
 	    } while ($statement->nextRowset());
@@ -1557,6 +1615,81 @@ function mysql_integration($result) {
 				array_push($result["CGC Associations"], "No Result");
 				array_push($result["CGC Mutation Types"], "No Result");
 				array_push($result["CGC Translocation Partners"], "No Result");
+			}
+		}
+		
+		######################
+		// Genomics England PanelApp
+		
+		if (isset($GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"]) && $GLOBALS["configuration_file"]["query_databases"]["ge_panelapp"] == 1) {
+			if (isset($ge_panelapp_results[$result["gene"][$i]])) {
+				$ge_panel_output_string = "";
+				
+				if (isset($ge_panelapp_results[$result["gene"][$i]]["HighEvidence"])) {
+					$ge_panel_output_string .= "High evidence for gene in panel(s): ";
+					
+					foreach ($ge_panelapp_results[$result["gene"][$i]]["HighEvidence"] as $ge_panel_name) {
+						$ge_panel_output_string .= "'".$ge_panel_name."', ";
+					}
+					
+					// Remove the ", " added above
+					$ge_panel_output_string = substr($ge_panel_output_string, 0, -2);
+					
+					$ge_panel_output_string .= "; ";
+				}
+				
+				if (isset($ge_panelapp_results[$result["gene"][$i]]["ModerateEvidence"])) {
+					$ge_panel_output_string .= "Moderate evidence for gene in panel(s): ";
+					
+					foreach ($ge_panelapp_results[$result["gene"][$i]]["ModerateEvidence"] as $ge_panel_name) {
+						$ge_panel_output_string .= "'".$ge_panel_name."', ";
+					}
+					
+					// Remove the ", " added above
+					$ge_panel_output_string = substr($ge_panel_output_string, 0, -2);
+					
+					$ge_panel_output_string .= "; ";
+				}
+				
+				if (isset($ge_panelapp_results[$result["gene"][$i]]["LowEvidence"])) {
+					$ge_panel_output_string .= "Low evidence for gene in panel(s): ";
+					
+					foreach ($ge_panelapp_results[$result["gene"][$i]]["LowEvidence"] as $ge_panel_name) {
+						$ge_panel_output_string .= "'".$ge_panel_name."', ";
+					}
+					
+					// Remove the ", " added above
+					$ge_panel_output_string = substr($ge_panel_output_string, 0, -2);
+					
+					$ge_panel_output_string .= "; ";
+				}
+				
+				// Loop through any remaining confidence levels not captured above
+				foreach (array_keys($ge_panelapp_results[$result["gene"][$i]]) as $ge_confidence_level) {
+					// Already printed above
+					if (in_array($ge_confidence_level, array("HighEvidence", "ModerateEvidence", "LowEvidence"))) {
+						continue;
+					}
+					
+					$ge_panel_output_string .= $ge_confidence_level." for gene in panel(s): ";
+					
+					foreach ($ge_panelapp_results[$result["gene"][$i]][$ge_confidence_level] as $ge_panel_name) {
+						$ge_panel_output_string .= "'".$ge_panel_name."', ";
+					}
+					
+					// Remove the ", " added above
+					$ge_panel_output_string = substr($ge_panel_output_string, 0, -2);
+					
+					
+					$ge_panel_output_string .= "; ";
+				}
+				
+				// Remove the last "; " added above
+				$ge_panel_output_string = substr($ge_panel_output_string, 0, -2);
+				
+				$result["Genomics England PanelApp"][] = $ge_panel_output_string;
+			} else {
+				$result["Genomics England PanelApp"][] = "No Result";
 			}
 		}
 
