@@ -221,11 +221,11 @@
 	
 	} elseif ($_SESSION["gbs_analysis_type"] == "svfusions") {		
 		// Store the lists selected in the multi-select box so they can be restored on the query page (only used for this)
-		if (isset($_POST["svfusions_gene_list_selection"])) {
-			$_SESSION["gbs_svfusions_gene_list_selection"] = $_POST["svfusions_gene_list_selection"];
+		if (isset($_POST["gbs_gene_list_selection"])) {
+			$_SESSION["gbs_gbs_gene_list_selection"] = $_POST["gbs_gene_list_selection"];
 		// If no list was selected reset to nothing (in case some were selected before)
 		} else {
-			$_SESSION["gbs_svfusions_gene_list_selection"] = "";
+			$_SESSION["gbs_gbs_gene_list_selection"] = "";
 		}
 		
 		// Store the manual entry gene list submitted
@@ -236,14 +236,14 @@
 		}
 		
 		// If no gene list was selected and no genes were typed into the manual entry box
-		if ($_SESSION["gbs_svfusions_gene_list_selection"] == "" && $_SESSION["gbs_svfusions_gene_list"] == "") {
+		if ($_SESSION["gbs_gbs_gene_list_selection"] == "" && $_SESSION["gbs_svfusions_gene_list"] == "") {
 			// Empty array of genes to search (means all will be searched)
 			$gene_list_to_search = array();
 		// If at least one gene list was selected or genes were typed into the manual entry box
 		} else {
 			// If at least one gene list was selected
-			if (isset($_POST["svfusions_gene_list_selection"])) {
-				$gene_list_to_search = determine_gene_list($_POST["svfusions_gene_list_selection"], $_SESSION["gbs_svfusions_gene_list"]);
+			if (isset($_POST["gbs_gene_list_selection"])) {
+				$gene_list_to_search = determine_gene_list($_POST["gbs_gene_list_selection"], $_SESSION["gbs_svfusions_gene_list"]);
 			// Otherwise just parse the manual entry list
 			} else {
 				$gene_list_to_search = determine_gene_list("", $_SESSION["gbs_svfusions_gene_list"]);

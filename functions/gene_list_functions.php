@@ -11,7 +11,8 @@ function fetch_gene_lists() {
 		$sql .= "list_name, ";
 		$sql .= "(SELECT COUNT(*) FROM KCCG_GENE_LISTS.genes_in_lists WHERE list_id = gene_lists.list_id) AS num_genes ";
 	$sql .= "FROM ";
-		$sql .= "KCCG_GENE_LISTS.gene_lists";
+		$sql .= "KCCG_GENE_LISTS.gene_lists ";
+	$sql .= "ORDER BY list_name";
 	$sql .= ";";
 	
 	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
@@ -22,12 +23,46 @@ function fetch_gene_lists() {
 		$gene_list[$list["list_name"]] = $list["num_genes"];
 	}
 	
-	// If more than 1 gene list was found, sort them naturally
-	if (count($gene_list) > 1) {
-		array_multisort(array_keys($gene_list), SORT_NATURAL, $gene_list); // Natural sort by gene list name
+	return $gene_list;
+}
+
+#############################################
+# FETCH GENOMICS ENGLAND PANELAPP GENE COUNTS
+#############################################
+
+function fetch_panel_counts_ge_panelapp() {
+	$ge_panelapp_panels = array();
+	
+	$sql = "SELECT ";
+		$sql .= "panels.name, ";
+		$sql .= "genes_in_panels.confidence_level, ";
+		$sql .= "COUNT(*) AS num_genes ";
+	$sql .= "FROM ";
+		$sql .= "GEPANELAPP.genes_in_panels ";
+	$sql .= "LEFT JOIN GEPANELAPP.panels ON GEPANELAPP.genes_in_panels.panel_id = GEPANELAPP.panels.id ";
+	$sql .= "GROUP BY panels.name, genes_in_panels.confidence_level ";
+	$sql .= "ORDER BY panels.name";
+	$sql .= ";";
+	
+	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
+	
+	$statement->execute();
+	
+	while ($panels = $statement->fetch()) {
+		$ge_panelapp_panels[$panels["name"]][$panels["confidence_level"]] = $panels["num_genes"];
+	}
+	// Format: $ge_panelapp_panels[<panel name>][<confidence level>] = number of genes
+	
+	// Go through each panel
+	foreach (array_keys($ge_panelapp_panels) as $ge_panelapp_panel) {
+		// If the current panel has both high and moderate evidence genes
+		if (isset($ge_panelapp_panels[$ge_panelapp_panel]["HighEvidence"], $ge_panelapp_panels[$ge_panelapp_panel]["ModerateEvidence"])) {
+			// Inject in a new evidence level which combines the high and moderate counts
+			$ge_panelapp_panels[$ge_panelapp_panel]["HighModerateEvidence"] = $ge_panelapp_panels[$ge_panelapp_panel]["HighEvidence"] + $ge_panelapp_panels[$ge_panelapp_panel]["ModerateEvidence"];
+		}
 	}
 	
-	return $gene_list;
+	return $ge_panelapp_panels;
 }
 
 #############################################
