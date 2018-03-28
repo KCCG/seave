@@ -44,7 +44,7 @@
 		}
 		
 		// Determine a list of genes to add while removing duplicates and invalid genes
-		$gene_list = determine_gene_list("", $_POST["genes_to_add"]); // Array of genes, will have 0 elements if no genes submitted
+		$gene_list = determine_gene_list("", $_POST["genes_to_add"], ""); // Array of genes, will have 0 elements if no genes submitted
 		
 		// Only try to validate a gene list if query genes exist
 		if ($gene_list === false || count($gene_list) == 0) {
@@ -155,7 +155,7 @@
 		}
 		
 		// Determine a list of genes to delete while removing duplicates and invalid genes
-		$gene_list = determine_gene_list("", $_POST["genes_to_delete"]); // Array of genes, will have 0 elements if no genes submitted
+		$gene_list = determine_gene_list("", $_POST["genes_to_delete"], ""); // Array of genes, will have 0 elements if no genes submitted
 		
 		// Only try to validate a gene list if query genes exist
 		if ($gene_list === false || count($gene_list) == 0) {

@@ -131,7 +131,7 @@
 								
 								echo "<h4>Genomics England PanelApp Panels</h4>";
 								
-								echo "<select name=\"panelapp_panel_selection[]\" id=\"panelapp_panel_selection\">";
+								echo "<select name=\"panelapp_panel_selection\" id=\"panelapp_panel_selection\">";
 									echo "<option value=\"None\"";
 									// If no panel has been previously selected, show the default value
 									if (!isset($_SESSION["panelapp_panel_selection"]) || $_SESSION["panelapp_panel_selection"] == "None" || $_SESSION["panelapp_panel_selection"] == "") {
@@ -227,7 +227,7 @@
 								
 								echo "<h4>Genomics England PanelApp Panels</h4>";
 								
-								echo "<select name=\"panelapp_panel_exclusion_selection[]\" id=\"panelapp_panel_exclusion_selection\">";
+								echo "<select name=\"panelapp_panel_exclusion_selection\" id=\"panelapp_panel_exclusion_selection\">";
 									echo "<option value=\"None\"";
 									// If no panel has been previously selected, show the default value
 									if (!isset($_SESSION["panelapp_panel_exclusion_selection"]) || $_SESSION["panelapp_panel_exclusion_selection"] == "None" || $_SESSION["panelapp_panel_exclusion_selection"] == "") {

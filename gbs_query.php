@@ -491,8 +491,8 @@
 								#############################################
 								
 								echo "<div class=\"row\" id=\"genelistrestriction\"";
-								// Hide the copy number restriction if the analysis type used previously was ROHmer or SV Fusions
-								if (in_array($_SESSION["gbs_analysis_type"], array("gene_lists", "svfusions"))) {
+								// Hide the gene list restriction if the analysis type used previously was ROHmer or SV Fusions
+								if (!in_array($_SESSION["gbs_analysis_type"], array("gene_lists", "svfusions", ""))) {
 									echo " style=\"display: none;\">";
 								} else {
 									echo ">";
@@ -503,7 +503,7 @@
 										
 										echo "<h4>Select one or more gene lists</h4>";
 										
-										echo "<select name=\"gene_list_selection[]\" id=\"gene_list_selection\" style=\"display: inline;\" size=\"10\" multiple=\"multiple\">";
+										echo "<select name=\"gbs_gene_list_selection[]\" id=\"gbs_gene_list_selection\" style=\"display: inline;\" size=\"10\" multiple=\"multiple\">";
 											foreach (array_keys($gene_lists) as $gene_list_name) {
 												// If the current option was previously selected, make it selected
 												if (is_array($_SESSION["gbs_gene_list_selection"]) && in_array($gene_list_name, $_SESSION["gbs_gene_list_selection"])) {
@@ -514,11 +514,11 @@
 											}
 										echo "</select>";
 										
-										echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#gene_list_selection option:selected').removeAttr('selected');\">Clear</p>";
+										echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#gbs_gene_list_selection option:selected').removeAttr('selected');\">Clear</p>";
 										
 										echo "<h4>Genomics England PanelApp Panels</h4>";
 									
-										echo "<select name=\"gbs_panelapp_panel_selection[]\" id=\"gbs_panelapp_panel_selection\">";
+										echo "<select name=\"gbs_panelapp_panel_selection\" id=\"gbs_panelapp_panel_selection\">";
 											echo "<option value=\"None\"";
 											// If no panel has been previously selected, show the default value
 											if (!isset($_SESSION["gbs_panelapp_panel_selection"]) || $_SESSION["gbs_panelapp_panel_selection"] == "None" || $_SESSION["gbs_panelapp_panel_selection"] == "") {

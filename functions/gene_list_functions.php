@@ -66,6 +66,48 @@ function fetch_panel_counts_ge_panelapp() {
 }
 
 #############################################
+# FETCH GENOMICS ENGLAND PANELAPP GENES FOR PANEL NAME
+#############################################
+
+function fetch_genes_for_ge_panelapp_panel($panel_name, $evidence_level) {
+	$panel_genes = array();
+	
+	$sql = "SELECT ";
+		$sql .= "genes.symbol ";
+	$sql .= "FROM ";
+		$sql .= "GEPANELAPP.panels ";
+	$sql .= "LEFT JOIN GEPANELAPP.genes_in_panels ON GEPANELAPP.panels.id = GEPANELAPP.genes_in_panels.panel_id ";
+	$sql .= "LEFT JOIN GEPANELAPP.genes ON GEPANELAPP.genes_in_panels.gene_id = GEPANELAPP.genes.id ";
+	$sql .= "WHERE ";
+		$sql .= "panels.name = ?";
+	if ($evidence_level == "HighEvidence") {
+		$sql .= " AND ";
+			$sql .= "genes_in_panels.confidence_level = 'HighEvidence'";
+	} elseif ($evidence_level == "HighModerateEvidence") {
+		$sql .= " AND (";
+			$sql .= "genes_in_panels.confidence_level = 'HighEvidence' ";
+			$sql .= "OR ";
+			$sql .= "genes_in_panels.confidence_level = 'ModerateEvidence'";
+		$sql .= ")";
+	}
+	$sql .= ";";
+	
+	$statement = $GLOBALS["mysql_connection"]->prepare($sql);
+	
+	$statement->execute([$panel_name]);
+	
+	while ($genes = $statement->fetch()) {
+		$panel_genes[] = $genes["symbol"];
+	}
+	
+	if (count($panel_genes) == 0) {
+		return false;
+	}
+	
+	return $panel_genes;
+}
+
+#############################################
 # VALIDATE A GENE LIST AGAINST THE LIST OF GENES THAT ARE ANNOTATED IN THE DATABASES
 #############################################
 
