@@ -20,10 +20,10 @@ function print_table_cell($content, $new_tab_link, $same_tab_link, $color) {
 	
 	// If a link to open in a new tab has been supplied (takes priority over a same tab link)
 	if ($new_tab_link != "") {
-		echo "onclick=\"window.open('".$new_tab_link."');\" ";
+		echo "onclick=\"window.open('".$new_tab_link."'); disabledEventPropagation(event);\" ";
 	// If a link to open in the same tab has been supplied
 	} elseif ($same_tab_link != "") {
-		echo "onclick=\"window.location.href='".$same_tab_link."';\" ";
+		echo "onclick=\"window.location.href='".$same_tab_link."'; disabledEventPropagation(event);\" ";
 	}
 	
 	// If a color has been supplied for the cell text
@@ -146,7 +146,7 @@ function database_table($db_information) {
 						
 						// If the user is logged in, add the modification of pedigree action
 						if (is_user_logged_in()) {
-							$db_information[$group][$file]["Actions"] .= "<a href=\"modify_pedigree?group=".$group."&query_db=".$file."\" style=\"border-bottom: 0px; margin:auto;\">";
+							$db_information[$group][$file]["Actions"] .= "<a href=\"modify_pedigree?group=".$group."&query_db=".$file."\" onclick=\"disabledEventPropagation(event);\" style=\"border-bottom: 0px; margin:auto;\">";
 							
 							// If no pedigree has been defined yet, print a red icon to edit it
 							if ($db_information[$group][$file]["Pedigree"] == "No") {
@@ -161,7 +161,7 @@ function database_table($db_information) {
 						
 						// If the database summary reports exist, print a link to view them
 						if (file_exists($GLOBALS["configuration_file"]["gemini"]["db_dir"]."/".$group."/".$file.".all_variants.summary") && file_exists($GLOBALS["configuration_file"]["gemini"]["db_dir"]."/".$group."/".$file.".rare_variants.summary")) {
-							$db_information[$group][$file]["Actions"] .= " <a href=\"database_summary?group=".$group."&query_db=".$file."\" style=\"border-bottom: 0px;\"><img src=\"images/clipboard_icon.png\" style=\"width: 15px; vertical-align: middle;\" alt=\"View variant report\"></a>";
+							$db_information[$group][$file]["Actions"] .= " <a href=\"database_summary?group=".$group."&query_db=".$file."\" onclick=\"disabledEventPropagation(event);\" style=\"border-bottom: 0px;\"><img src=\"images/clipboard_icon.png\" style=\"width: 15px; vertical-align: middle;\" alt=\"View variant report\"></a>";
 						}
 						
 						// Flag to print the GBS icon for the current DB
@@ -171,7 +171,7 @@ function database_table($db_information) {
 						foreach (explode(";", $db_information[$group][$file]["Sample Names"]) as $sample) {
 							// If at least one sample in the DB is in the GBS and the GBS icon has not been printed yet, print it
 							if (isset($GBS_presence[$sample]) && $GBS_icon_printed == 0) {
-								$db_information[$group][$file]["Actions"] .= " <a href=\"gbs_query?group=".$group."&query_db=".$file."&hasped=".$db_information[$group][$file]["Pedigree"]."\" style=\"border-bottom: 0px;\"><img src=\"images/GBS-Icon.png\" style=\"width: 20px; vertical-align: middle;\" alt=\"Query GBS\"></a>";
+								$db_information[$group][$file]["Actions"] .= " <a href=\"gbs_query?group=".$group."&query_db=".$file."&hasped=".$db_information[$group][$file]["Pedigree"]."\" onclick=\"disabledEventPropagation(event);\" style=\"border-bottom: 0px;\"><img src=\"images/GBS-Icon.png\" style=\"width: 20px; vertical-align: middle;\" alt=\"Query GBS\"></a>";
 								
 								$GBS_icon_printed = 1;
 							}

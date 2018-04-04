@@ -245,6 +245,20 @@
 	                document.getElementById(id).style.width = '92%';
 	            }
 		    }
+		    
+		    //############################################
+ 			// DISABLE EVENT PROPAGATION (e.g. onclick within element that itself has an onclick)
+ 			//############################################
+ 			
+ 		    function disabledEventPropagation(event) {
+ 				// Good browsers
+ 				if (event.stopPropagation){
+ 					event.stopPropagation();
+ 				// Old IE
+ 				} else if (window.event) {
+ 					window.event.cancelBubble=true;
+ 				}
+ 			}
 		
 			//############################################
 			// GOOGLE ANALYTICS

@@ -182,8 +182,9 @@
 										continue;
 									}
 									
-									echo "<tr>";
-										// Go through each column value for the current variant
+									// Link to the page with all columns for the variant clicked
+									echo "<tr onclick=\"window.location.href='variant_info?variant=".$columns[$column_index["Chr"]].":".$columns[$column_index["Start"]]."-".$columns[$column_index["End"]]."&output_filename=".$result_file."';\">";
+ 										// Go through each column value for the current variant
 										for ($i = 0; $i < count($columns); $i++) {
 											// Print each database cell and link out to external websites for specific columns
 											if (isset($column_index{"Gene"}) && $column_index{"Gene"} == $i) { # Check whether the current cell is in the "Gene" column and add an external link if so
@@ -219,7 +220,7 @@
 												print_table_cell($columns[$i], "http://www.omim.org/entry/".$omim_numbers[0], "", "");
 											// Populate the IGV column using the variant coordinate
 											} elseif (isset($column_index["IGV"]) && $column_index["IGV"] == $i) {
-												$igv_link = "<a href=\"igv_link.php?locus=".$columns[$column_index["Chr"]].":".($columns[$column_index["Start"]] + 1)."\" style=\"padding: 0.4em 0.5em 0.4em 0.5em; font-size: 90%; line-height: 100%;\" class=\"button\" target=\"_blank\" title=\"Navigate to the variant position in a currently open IGV session\">IGV</a>";
+												$igv_link = "<a href=\"igv_link.php?locus=".$columns[$column_index["Chr"]].":".($columns[$column_index["Start"]] + 1)."\" onclick=\"disabledEventPropagation(event);\" style=\"padding: 0.4em 0.5em 0.4em 0.5em; font-size: 90%; line-height: 100%;\" class=\"button\" target=\"_blank\" title=\"Navigate to the variant position in a currently open IGV session\">IGV</a>";
 												print_table_cell($igv_link, "", "", "");
 											// Populate the Impact Summary column using several other columns if they are present
 											} elseif (isset($column_index["Impact Summary"]) && $column_index["Impact Summary"] == $i) {
@@ -407,9 +408,9 @@
 
 												######################
 												
-												print_table_cell($columns[$i], "", "variant_info?variant=".$columns[$column_index["Chr"]].":".$columns[$column_index["Start"]]."-".$columns[$column_index["End"]]."&output_filename=".$result_file, "");													
+												print_table_cell($columns[$i], "", "", "");													
 											} else {
-												print_table_cell($columns[$i], "", "variant_info?variant=".$columns[$column_index["Chr"]].":".$columns[$column_index["Start"]]."-".$columns[$column_index["End"]]."&output_filename=".$result_file, "");
+												print_table_cell($columns[$i], "", "", "");
 											}
 										}
 									echo "</tr>";
