@@ -71,7 +71,10 @@
 						
 					    $gene_lists = fetch_gene_lists();
 					    
-					    if ($gene_lists === false) {
+					    // Extract GE PanelApp panels from the database
+					    $ge_panelapp_panels = fetch_panel_counts_ge_panelapp();
+					    
+					    if ($gene_lists === false || $ge_panelapp_panels === false) {
 						    error("Could not fetch gene lists from the database.");
 						    
 						    $requirements_failed_flag = 1;
@@ -337,17 +340,17 @@
 											
 											// Add onclick javascript events to show analysis descriptions or options and hide/show the CN restriction section based on analysis type
 											if ($analysis_type == "gene_lists") {
-												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('lists'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block'; document.getElementById('genelistrestriction').style.display = 'block';\"";
 											} elseif ($analysis_type == "sample_overlaps") {
-												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('sample_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block'; document.getElementById('genelistrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "method_overlaps") {
-												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('method_overlaps'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block'; document.getElementById('genelistrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "genomic_coordinates") {
-												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('positions'); document.getElementById('cnrestriction').style.display = 'block'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'block'; document.getElementById('genelistrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "rohmer") {
-												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'none'; document.getElementById('minblocksizerestriction').style.display = 'block';\"";
+												echo " onclick=\"showdiv('rohmer'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'none'; document.getElementById('minblocksizerestriction').style.display = 'block'; document.getElementById('genelistrestriction').style.display = 'none';\"";
 											} elseif ($analysis_type == "svfusions") {
-												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'none';\"";
+												echo " onclick=\"showdiv('svfusions'); document.getElementById('cnrestriction').style.display = 'none'; document.getElementById('failedvariantsrestriction').style.display = 'block'; document.getElementById('minblocksizerestriction').style.display = 'none'; document.getElementById('genelistrestriction').style.display = 'block';\"";
 											}
 											
 											// Select the current analysis type if it was previously selected or one has not been selected before
@@ -395,35 +398,9 @@
 									echo "<h3>Description</h3>";
 									
 									echo "<p>This analysis type lets you find all variants that overlap with your genes of interest by one or more bases. For example, if a variant caller identifies a deletion at coordinates 1:20,000-30,000 and one of your genes of interest is at 1:29,000-45,000, this represents a 1,000bp overlap at 1:29,000-30,000.</p>";
-									
-									echo "<h3>Gene lists</h3>";
-									
-									echo "<h4>Select one or more gene lists</h4>";
-									
-									echo "<select name=\"gene_list_selection[]\" id=\"gene_list_selection\" style=\"display: inline;\" size=\"10\" multiple=\"multiple\">";
-										foreach (array_keys($gene_lists) as $gene_list_name) {
-											// If the current option was previously selected, make it selected
-											if (is_array($_SESSION["gbs_gene_list_selection"]) && in_array($gene_list_name, $_SESSION["gbs_gene_list_selection"])) {
-												echo "<option value=\"".$gene_list_name."\" selected>".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
-											} else {
-												echo "<option value=\"".$gene_list_name."\">".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
-											}
-										}
-									echo "</select>";
-									
-									echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#gene_list_selection option:selected').removeAttr('selected');\">Clear</p>";
-								
-									echo "<h4>Search custom gene list</h4>";
-								
-									$input_search_genes = "<input type=\"text\" name=\"genes\" ";
-									if ($_SESSION["gbs_gene_list"] != "") { # If the form has already been submitted, retain the values
-										$input_search_genes .= "value=\"".$_SESSION["gbs_gene_list"]."\">";
-									} else {
-										$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
-									}
-									echo $input_search_genes; # Print the box
-									echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space.</p>";
 								echo "</div>";
+								
+								######################
 								
 								// The sample overlapping blocks selection div
 								echo "<div class=\"selection\" id=\"sample_overlaps\"";
@@ -438,6 +415,8 @@
 									echo "<p>This analysis will help you discover locations in the genome where the same variant caller has identified variants that overlap between samples. Overlaps must be by at least 1 base to be returned. For example, if Sample1 has a deletion variant called by Method1 at coordinates 1:20,000-30,0000 and Sample2 has 2 duplication variants called by Method1 at 1:21,000-22,000 and 1:27,000-40,000, this means both of the variants in Sample2 overlap with the 1 variant in Sample1 and will be returned as two overlaps (at 1:21,000-22,000 and 1:27,000-30,000).</p>";
 								echo "</div>";
 								
+								######################
+								
 								// The method overlapping blocks selection div
 								echo "<div class=\"selection\" id=\"method_overlaps\"";
 								// If the overlapping blocks analysis type was not previously used, hide it
@@ -450,6 +429,8 @@
 									
 									echo "<p>This analysis will help you discover locations in the genome where multiple variant callers have independently found variants that overlap with one another in the same sample. Overlaps must be by at least 1 base to be returned. For example, if Sample1 has a deletion variant called by Method1 at coordinates 1:20,000-30,0000 and 2 deletion variants called by Method2 at 1:21,000-24,000 and 1:25,000-40,000, this represents 2 genomic locations where the methods have called overlapping variants (1:20,000-24,000 and 1:25,000-40,000).</p>";
 								echo "</div>";
+								
+								######################
 								
 								// The genomic coordinates blocks selection div
 								echo "<div class=\"selection\" id=\"positions\"";
@@ -476,6 +457,8 @@
 									echo $input_search_regions; # Print the box
 									echo "<p class=\"query_label\">Separate multiple regions to search with a <strong>semicolon</strong>.</p>";
 								echo "</div>";
+								
+								######################
 
 								// The ROHmer selection div
 								echo "<div class=\"selection\" id=\"rohmer\"";
@@ -490,6 +473,8 @@
 									echo "<p>This analysis lets you find regions of homozygosity in affected individuals that are more likely to harbour a pathogenic variant due to consanguinity. These regions are identified by first extracting all shared RoH blocks for all affected samples then subtracting any overlapping regions of homozygosity present in unaffected individuals. The remaining regions of interest are shared by affected individuals and not present in any unaffected individual.</p>";
 								echo "</div>";
 								
+								######################
+								
 								// The SV Fusions selection div
 								echo "<div class=\"selection\" id=\"svfusions\"";
 								// If the SV Fusions analysis type was not previously used, hide it
@@ -501,34 +486,77 @@
 									echo "<h3>Description</h3>";
 									
 									echo "<p>This analysis will help you find all variants that have the potential to cause a fusion between a gene and either another gene or an intergenic region of the genome. Select a gene list or enter a manual gene list to restrict your search to specific genes, otherwise don't select anything to search the entire genome.</p>";
-									
-									echo "<h3>Gene lists</h3>";
-									
-									echo "<h4>Select one or more gene lists</h4>";
-									
-									echo "<select name=\"svfusions_gene_list_selection[]\" id=\"svfusions_gene_list_selection\" style=\"display: inline;\" size=\"10\" multiple=\"multiple\">";
-										foreach (array_keys($gene_lists) as $gene_list_name) {
-											// If the current option was previously selected, make it selected
-											if (is_array($_SESSION["gbs_svfusions_gene_list_selection"]) && in_array($gene_list_name, $_SESSION["gbs_svfusions_gene_list_selection"])) {
-												echo "<option value=\"".$gene_list_name."\" selected>".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
-											} else {
-												echo "<option value=\"".$gene_list_name."\">".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
+								echo "</div>";
+								
+								#############################################
+								
+								echo "<div class=\"row\" id=\"genelistrestriction\"";
+								// Hide the gene list restriction if the analysis type used previously was ROHmer or SV Fusions
+								if (!in_array($_SESSION["gbs_analysis_type"], array("gene_lists", "svfusions", ""))) {
+									echo " style=\"display: none;\">";
+								} else {
+									echo ">";
+								}
+								
+									echo "<section class=\"12u 12u(narrower)\">";
+										echo "<h3>Gene lists</h3>";
+										
+										echo "<h4>Select one or more gene lists</h4>";
+										
+										echo "<select name=\"gbs_gene_list_selection[]\" id=\"gbs_gene_list_selection\" style=\"display: inline;\" size=\"10\" multiple=\"multiple\">";
+											foreach (array_keys($gene_lists) as $gene_list_name) {
+												// If the current option was previously selected, make it selected
+												if (is_array($_SESSION["gbs_gene_list_selection"]) && in_array($gene_list_name, $_SESSION["gbs_gene_list_selection"])) {
+													echo "<option value=\"".$gene_list_name."\" selected>".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
+												} else {
+													echo "<option value=\"".$gene_list_name."\">".$gene_list_name." (".$gene_lists[$gene_list_name].")</option>";
+												}
 											}
-										}
-									echo "</select>";
+										echo "</select>";
+										
+										echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#gbs_gene_list_selection option:selected').removeAttr('selected');\">Clear</p>";
+										
+										echo "<h4>Genomics England PanelApp Panels</h4>";
 									
-									echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#svfusions_gene_list_selection option:selected').removeAttr('selected');\">Clear</p>";
-								
-									echo "<h4>Search custom gene list</h4>";
-								
-									$input_search_genes = "<input type=\"text\" name=\"svfusions_genes\" ";
-									if ($_SESSION["gbs_svfusions_gene_list"] != "") { # If the form has already been submitted, retain the values
-										$input_search_genes .= "value=\"".$_SESSION["gbs_svfusions_gene_list"]."\">";
-									} else {
-										$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
-									}
-									echo $input_search_genes; # Print the box
-									echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space.</p>";
+										echo "<select name=\"gbs_panelapp_panel_selection\" id=\"gbs_panelapp_panel_selection\">";
+											echo "<option value=\"None\"";
+											// If no panel has been previously selected, show the default value
+											if (!isset($_SESSION["gbs_panelapp_panel_selection"]) || $_SESSION["gbs_panelapp_panel_selection"] == "None" || $_SESSION["gbs_panelapp_panel_selection"] == "") {
+												echo " selected";
+											}
+											echo ">Click to select a panel</option>";
+											
+											foreach (array_keys($ge_panelapp_panels) as $ge_panelapp_panel_name) {
+												foreach (array_keys($ge_panelapp_panels[$ge_panelapp_panel_name]) as $ge_panelapp_confidence) {
+													// Only interested in high and highmoderate evidence levels
+													if (!in_array($ge_panelapp_confidence, array("HighEvidence", "HighModerateEvidence"))) {
+														continue;
+													}
+													
+													echo "<option value=\"".$ge_panelapp_panel_name."-".$ge_panelapp_confidence."\"";
+													if (isset($_SESSION["gbs_panelapp_panel_selection"]) && $_SESSION["gbs_panelapp_panel_selection"] == $ge_panelapp_panel_name."-".$ge_panelapp_confidence) {
+														echo " selected";
+													}
+													echo ">".$ge_panelapp_panel_name." - ".$ge_panelapp_confidence." (".$ge_panelapp_panels[$ge_panelapp_panel_name][$ge_panelapp_confidence].")</option>";
+												}
+											}
+											
+											echo "</select>";
+											
+										echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#gbs_panelapp_panel_selection option:selected').removeAttr('selected');\">Clear</p>";
+										
+										echo "<h4>Search custom gene list</h4>";
+									
+										$input_search_genes = "<input type=\"text\" name=\"genes\" ";
+										if ($_SESSION["gbs_gene_list"] != "") { # If the form has already been submitted, retain the values
+											$input_search_genes .= "value=\"".$_SESSION["gbs_gene_list"]."\">";
+										} else {
+											$input_search_genes .= "placeholder=\"e.g. BRCA1;PIK3CA;TP53\">";
+										}
+										echo $input_search_genes; # Print the box
+										echo "<p class=\"query_label\">Separate multiple genes with a semicolon, comma or space.</p>";
+										echo "<br>";
+									echo "</section>";
 								echo "</div>";
 								
 								#############################################

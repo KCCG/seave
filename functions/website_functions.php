@@ -79,7 +79,7 @@ function column_filter($table, $column_index, $column_array, $label, $checked = 
 # DETERMINE A MASTER GENE LIST FROM GENE LISTS SELECTED AND ENTERED MANUALLY
 #############################################
 
-function determine_gene_list($gene_lists_selected, $gene_list_input) {
+function determine_gene_list($gene_lists_selected, $gene_list_input, $ge_panel_app_panel_name) {
 	$gene_list = array();
 	
 	// If a custom gene list has been selected from the dropdown
@@ -111,6 +111,20 @@ function determine_gene_list($gene_lists_selected, $gene_list_input) {
 	if ($gene_list_input != "") {
 		// Merge any genes from gene lists selected and manually entered genes into a single array
 		$gene_list = array_merge($gene_list, preg_split("/[;,\s]/", $gene_list_input));
+	}
+	
+	// If a PanelApp panel name was specified
+	if ($ge_panel_app_panel_name != "") {
+		// Extract the panel name and the desired evidence level out of the overall string
+		preg_match("/(.*)\-([A-Za-z]*Evidence)$/", $ge_panel_app_panel_name, $matches);
+		
+		// Fetch all genes for the GE PanelApp panel selected from the DB
+		$panel_genes = fetch_genes_for_ge_panelapp_panel($matches[1], $matches[2]);
+		
+		if ($panel_genes !== false) {
+			// Merge any genes from the panel with the built up gene list
+			$gene_list = array_merge($gene_list, $panel_genes);
+		}
 	}
 	
 	$gene_list = preg_grep('/^\s*\z/', $gene_list, PREG_GREP_INVERT); // Strip out elements that are just spaces or are empty e.g. BRCA1; ;BRCA2; has 2 elements that need to be stripped out

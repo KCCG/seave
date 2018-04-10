@@ -134,6 +134,97 @@
 	}
 	
 	#############################################
+	# IF A GENE LIST WAS SUBMITTED FOR AN ANALYSIS TYPE THAT ALLOWS THEM
+	#############################################
+
+	if (in_array($_SESSION["gbs_analysis_type"], array("svfusions", "gene_lists"))) {	
+		// Store the lists selected in the multi-select box so they can be restored on the query page (only used for this)
+		if (isset($_POST["gbs_gene_list_selection"])) {
+			$_SESSION["gbs_gene_list_selection"] = $_POST["gbs_gene_list_selection"];
+		// If no list was selected reset to nothing (in case some were selected before)
+		} else {
+			$_SESSION["gbs_gene_list_selection"] = "";
+		}
+		
+		// Store the manual entry gene list submitted
+		if (isset($_POST["genes"])) {
+			$_SESSION["gbs_gene_list"] = htmlspecialchars($_POST["genes"], ENT_QUOTES, 'UTF-8');
+		} else {
+			$_SESSION["gbs_gene_list"] = "";
+		}
+		
+		// Store the PanelApp panel selected so it can be restored on the query page (only used for this)
+		if (isset($_POST["gbs_panelapp_panel_selection"]) && $_POST["gbs_panelapp_panel_selection"] != "None") {
+			$_SESSION["gbs_panelapp_panel_selection"] = $_POST["gbs_panelapp_panel_selection"];
+		// If no panel was selected reset to nothing (in case one was selected before)
+		} else {
+			$_SESSION["gbs_panelapp_panel_selection"] = "";
+		}
+		
+		// If no gene lists to search were selected, no PanelApp panel was selected and nothing was typed in the manual entry box
+		if ($_SESSION["gbs_gene_list_selection"] == "" && $_SESSION["gbs_gene_list"] == "" && $_SESSION["gbs_panelapp_panel_selection"] == "") {;
+			if ($_SESSION["gbs_analysis_type"] == "svfusions") {
+				// Empty array of genes to search (means all will be searched)
+				$gene_list_to_search = array();
+			} elseif ($_SESSION["gbs_analysis_type"] == "gene_lists") {
+				gbs_query_page_redirect("no_genes_specified");
+			}
+		// If genes were specified
+		} else {
+			$gene_list_to_search = determine_gene_list($_POST["gbs_gene_list_selection"], $_SESSION["gbs_gene_list"], $_SESSION["gbs_panelapp_panel_selection"]);			
+			
+			if ($gene_list_to_search === false) {
+				gbs_query_page_redirect("cant_determine_gene_list");
+			}
+			
+			// If no genes were parsed out of the gene lists selected and manual list submitted
+			if (count($gene_list_to_search) == 0) {
+				if ($_SESSION["gbs_analysis_type"] == "svfusions") {
+					log_results_page_error("No genes were extracted from the gene list(s) you specified. Returning results for all genes in the genome.");
+				} elseif ($_SESSION["gbs_analysis_type"] == "gene_lists") {
+					gbs_query_page_redirect("no_genes_specified");
+				} 
+			} else {
+				// Determine which genes (if any) are not in the GBS gene name -> co-ordinate table, these are genes that will not be searched for
+				$missing_genes = validate_gene_list_gbs($gene_list_to_search);
+				
+				if ($missing_genes === false) {
+					gbs_query_page_redirect("cant_determine_missing_genes");
+				}
+				
+				// If missing genes were found
+				if (count($missing_genes) > 0) {
+					// Save any genes that were not found to a string to display to the user
+					log_results_page_error("Some genes do not have coordinates stored in the GBS for block searching, no blocks will be returned for these genes: ".implode(", ", $missing_genes)."\n");
+					
+					// Subtract the missing genes from the genes to search
+					foreach ($gene_list_to_search as $gene) {
+						// If the gene is not in the GBS
+						if (array_search($gene, $missing_genes) !== false) { // array_search returns an ID which can evaluate to true/false, the function will return false when it doesn't find a match, check this with === or !==
+							// Delete it from the gene list to search
+							unset($gene_list_to_search[array_search($gene, $gene_list_to_search)]);
+						}
+					}
+					
+					// Reindex the array
+					$gene_list_to_search = array_values($gene_list_to_search);
+					
+					// Check that genes are remaining to search
+					if (count($gene_list_to_search) == 0) {
+						// Allow the query to go through with a warning for SV Fusions
+						if ($_SESSION["gbs_analysis_type"] == "svfusions") {
+							log_results_page_error("No valid genes were extracted from the gene list(s) you specified. Returning results for all genes in the genome.");
+						// Stop the query going through for Gene Lists as you need at least 1 gene
+						} elseif ($_SESSION["gbs_analysis_type"] == "gene_lists") {
+							gbs_query_page_redirect("no_genes_remaining_to_query");
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	#############################################
 	# ANALYSIS TYPE SAMPLE OVERLAPPING BLOCKS
 	#############################################
 	
@@ -219,76 +310,7 @@
 	# ANALYSIS TYPE METHOD SV FUSIONS
 	#############################################
 	
-	} elseif ($_SESSION["gbs_analysis_type"] == "svfusions") {		
-		// Store the lists selected in the multi-select box so they can be restored on the query page (only used for this)
-		if (isset($_POST["svfusions_gene_list_selection"])) {
-			$_SESSION["gbs_svfusions_gene_list_selection"] = $_POST["svfusions_gene_list_selection"];
-		// If no list was selected reset to nothing (in case some were selected before)
-		} else {
-			$_SESSION["gbs_svfusions_gene_list_selection"] = "";
-		}
-		
-		// Store the manual entry gene list submitted
-		if (isset($_POST["svfusions_genes"])) {
-			$_SESSION["gbs_svfusions_gene_list"] = htmlspecialchars($_POST["svfusions_genes"], ENT_QUOTES, 'UTF-8');
-		} else {
-			$_SESSION["gbs_svfusions_gene_list"] = "";
-		}
-		
-		// If no gene list was selected and no genes were typed into the manual entry box
-		if ($_SESSION["gbs_svfusions_gene_list_selection"] == "" && $_SESSION["gbs_svfusions_gene_list"] == "") {
-			// Empty array of genes to search (means all will be searched)
-			$gene_list_to_search = array();
-		// If at least one gene list was selected or genes were typed into the manual entry box
-		} else {
-			// If at least one gene list was selected
-			if (isset($_POST["svfusions_gene_list_selection"])) {
-				$gene_list_to_search = determine_gene_list($_POST["svfusions_gene_list_selection"], $_SESSION["gbs_svfusions_gene_list"]);
-			// Otherwise just parse the manual entry list
-			} else {
-				$gene_list_to_search = determine_gene_list("", $_SESSION["gbs_svfusions_gene_list"]);
-			}
-			
-			if ($gene_list_to_search === false) {
-				gbs_query_page_redirect("cant_determine_gene_list");
-			}
-			
-			// If no genes were parsed out of the gene lists selected and manual list submitted
-			if (count($gene_list_to_search) == 0) {
-				log_results_page_error("No genes were extracted from the gene list(s) you specified. Returning results for all genes in the genome.");
-			} else {
-				// Determine which genes (if any) are not in the GBS gene name -> co-ordinate table, these are genes that will not be searched for
-				$missing_genes = validate_gene_list_gbs($gene_list_to_search);
-				
-				if ($missing_genes === false) {
-					gbs_query_page_redirect("cant_determine_missing_genes");
-				}
-				
-				// If missing genes were found
-				if (count($missing_genes) > 0) {
-					// Save any genes that were not found to a string to display to the user
-					log_results_page_error("Some genes do not have coordinates stored in the GBS for block searching, no blocks will be returned for these genes: ".implode(", ", $missing_genes)."\n");
-					
-					// Subtract the missing genes from the genes to search
-					foreach ($gene_list_to_search as $gene) {
-						// If the gene is not in the GBS
-						if (array_search($gene, $missing_genes) !== false) { // array_search returns an ID which can evaluate to true/false, the function will return false when it doesn't find a match, check this with === or !==
-							// Delete it from the gene list to search
-							unset($gene_list_to_search[array_search($gene, $gene_list_to_search)]);
-						}
-					}
-					
-					// Reindex the array
-					$gene_list_to_search = array_values($gene_list_to_search);
-					
-					// Check that genes are remaining to search
-					if (count($gene_list_to_search) == 0) {
-						log_results_page_error("No valid genes were extracted from the gene list(s) you specified. Returning results for all genes in the genome.");
-					}
-				}
-			}
-		}
-		
+	} elseif ($_SESSION["gbs_analysis_type"] == "svfusions") {				
 		$svfusions_blocks = analysis_type_svfusions_gbs($svfusions_samples_to_query, $gene_list_to_search);
 		
 		if ($svfusions_blocks === false) {
@@ -304,72 +326,6 @@
 	#############################################
 	
 	} elseif ($_SESSION["gbs_analysis_type"] == "gene_lists") {
-		// Store the lists selected in the multi-select box so they can be restored on the query page (only used for this)
-		if (isset($_POST["gene_list_selection"])) {
-			$_SESSION["gbs_gene_list_selection"] = $_POST["gene_list_selection"];
-		// If no list was selected reset to nothing (in case some were selected before)
-		} else {
-			$_SESSION["gbs_gene_list_selection"] = "";
-		}
-		
-		// Store the manual entry gene list submitted
-		if (isset($_POST["genes"])) {
-			$_SESSION["gbs_gene_list"] = htmlspecialchars($_POST["genes"], ENT_QUOTES, 'UTF-8');
-		} else {
-			$_SESSION["gbs_gene_list"] = "";
-		}
-		
-		// If no gene list was selected and no genes were typed into the manual entry box
-		if ($_SESSION["gbs_gene_list_selection"] == "" && $_SESSION["gbs_gene_list"] == "") {
-			gbs_query_page_redirect("no_genes_specified");
-		}
-		
-		// If gene lists were selected
-		if (isset($_POST["gene_list_selection"])) {
-			$gene_list_to_search = determine_gene_list($_POST["gene_list_selection"], $_SESSION["gbs_gene_list"]);
-		} else {
-			$gene_list_to_search = determine_gene_list("", $_SESSION["gbs_gene_list"]);
-		}
-		
-		if ($gene_list_to_search === false) {
-			gbs_query_page_redirect("cant_determine_gene_list");
-		}
-		
-		// If no genes were parsed out of the gene lists selected and manual list submitted
-		if (count($gene_list_to_search) == 0) {
-			gbs_query_page_redirect("no_genes_specified");
-		}
-		
-		// Determine which genes (if any) are not in the GBS gene name -> co-ordinate table, these are genes that will not be searched for
-		$missing_genes = validate_gene_list_gbs($gene_list_to_search);
-		
-		if ($missing_genes === false) {
-			gbs_query_page_redirect("cant_determine_missing_genes");
-		}
-		
-		// If missing genes were found
-		if (count($missing_genes) > 0) {
-			// Save any genes that were not found to a string to display to the user
-			log_results_page_error("Some genes do not have coordinates stored in the GBS for block searching, no blocks will be returned for these genes: ".implode(", ", $missing_genes)."\n");
-		
-			// Subtract the missing genes from the genes to search
-			foreach ($gene_list_to_search as $gene) {
-				// If the gene is not in the GBS
-				if (array_search($gene, $missing_genes) !== false) { // array_search returns an ID which can evaluate to true/false, the function will return false when it doesn't find a match, check this with === or !==
-					// Delete it from the gene list to search
-					unset($gene_list_to_search[array_search($gene, $gene_list_to_search)]);
-				}
-			}
-			
-			// Reindex the array
-			$gene_list_to_search = array_values($gene_list_to_search);
-			
-			// Check that genes are remaining to search
-			if (count($gene_list_to_search) == 0) {
-				gbs_query_page_redirect("no_genes_remaining_to_query");
-			}
-		}
-				
 		// Run the analysis for blocks
 		$gene_lists_blocks_output = analysis_type_gene_lists_gbs($gene_list_to_search, $samples_to_query);
 		

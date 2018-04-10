@@ -36,7 +36,7 @@
 	
 	######################
 	
-	// Store the lists selected in the multi-select box so they can be restored on the query page (only used for this)
+	// Store the lists selected in the multi-select box so they can be restored on the query page
 	if (isset($_POST["gene_list_selection"])) {
 		$_SESSION["gene_list_selection"] = $_POST["gene_list_selection"];
 	// If no list was selected reset to nothing (in case some were selected before)
@@ -44,7 +44,7 @@
 		$_SESSION["gene_list_selection"] = "";
 	}
 	
-	// Store the lists selected in the multi-select boxe so they can be restored on the query page (only used for this)
+	// Store the lists selected in the multi-select boxe so they can be restored on the query page
 	if (isset($_POST["gene_list_exclusion_selection"])) {
 		$_SESSION["gene_list_exclusion_selection"] = $_POST["gene_list_exclusion_selection"];
 	// If no list was selected reset to nothing (in case some were selected before)
@@ -56,31 +56,35 @@
 	$_SESSION["exclusion_gene_list"] = htmlspecialchars($_POST["exclude_genes"], ENT_QUOTES, 'UTF-8');
 	$_SESSION["gene_list"] = htmlspecialchars($_POST["genes"], ENT_QUOTES, 'UTF-8');
 	
+	// Store the PanelApp panel selected so it can be restored on the query page (only used for this)
+	if (isset($_POST["panelapp_panel_selection"]) && $_POST["panelapp_panel_selection"] != "None") {
+		$_SESSION["panelapp_panel_selection"] = $_POST["panelapp_panel_selection"];
+	// If no panel was selected reset to nothing (in case one was selected before)
+	} else {
+		$_SESSION["panelapp_panel_selection"] = "";
+	}
+	
+	// Store the PanelApp panel selected so it can be restored on the query page (only used for this)
+	if (isset($_POST["panelapp_panel_exclusion_selection"]) && $_POST["panelapp_panel_exclusion_selection"] != "None") {
+		$_SESSION["panelapp_panel_exclusion_selection"] = $_POST["panelapp_panel_exclusion_selection"];
+	// If no panel was selected reset to nothing (in case one was selected before)
+	} else {
+		$_SESSION["panelapp_panel_exclusion_selection"] = "";
+	}
+	
 	######################
 	
-	// If no gene lists to search were selected and nothing was typed in the manual entry box, set the gene list to search to an empty array
-	if (!isset($_POST["gene_list_selection"]) && $_SESSION["gene_list"] == "") {
+	// If no gene lists to search were selected, no PanelApp panel was selected and nothing was typed in the manual entry box, set the gene list to search to an empty array
+	if ($_SESSION["gene_list_selection"] == "" && $_SESSION["gene_list"] == "" && $_SESSION["panelapp_panel_selection"] == "") {;
 		$_SESSION["gene_list_to_search"] = array();
 	// If gene lists were selected or typed in the manual entry box
 	} else {
-		// If gene lists were selected
-		if (isset($_POST["gene_list_selection"])) {
-			$gene_list_result = determine_gene_list($_POST["gene_list_selection"], $_SESSION["gene_list"]);
-			
-			if ($gene_list_result === false) {
-				results_page_redirect("cant_determine_gene_list");
-			} else {
-				$_SESSION["gene_list_to_search"] = $gene_list_result;
-			}
-		// If no gene lists were selected but something was typed in the manual entry box
+		$gene_list_result = determine_gene_list($_SESSION["gene_list_selection"], $_SESSION["gene_list"], $_SESSION["panelapp_panel_selection"]);
+		
+		if ($gene_list_result === false) {
+			results_page_redirect("cant_determine_gene_list");
 		} else {
-			$gene_list_result = determine_gene_list("", $_SESSION["gene_list"]);
-			
-			if ($gene_list_result === false) {
-				results_page_redirect("cant_determine_gene_list");
-			} else {
-				$_SESSION["gene_list_to_search"] = $gene_list_result;
-			}
+			$_SESSION["gene_list_to_search"] = $gene_list_result;
 		}
 		
 		if (count($_SESSION["gene_list_to_search"]) > 0) { // Only try to validate a gene list if query genes exist
@@ -104,30 +108,18 @@
 	}
 	
 	######################
-	
-	// If no gene lists to search were selected and nothing was typed in the manual entry box, set the gene list to search to an empty array
-	if (!isset($_POST["gene_list_exclusion_selection"]) && $_SESSION["exclusion_gene_list"] == "") {
+
+	// If no gene lists to search were selected, no PanelApp panel was selected and nothing was typed in the manual entry box, set the gene list to search to an empty array
+	if ($_SESSION["gene_list_exclusion_selection"] == "" && $_SESSION["exclusion_gene_list"] == "" && $_SESSION["panelapp_panel_exclusion_selection"] == "") {
 		$_SESSION["gene_list_to_exclude"] = array();
 	// If gene lists were selected or typed in the manual entry box
 	} else {
-		// If gene lists were selected
-		if (isset($_POST["gene_list_exclusion_selection"])) {
-			$gene_list_result = determine_gene_list($_POST["gene_list_exclusion_selection"], $_SESSION["exclusion_gene_list"]);
-			
-			if ($gene_list_result === false) {
-				results_page_redirect("cant_determine_exclusion_gene_list");
-			} else {
-				$_SESSION["gene_list_to_exclude"] = $gene_list_result;
-			}
-		// If no gene lists were selected but something was typed in the manual entry box
+		$gene_list_result = determine_gene_list($_SESSION["gene_list_exclusion_selection"], $_SESSION["exclusion_gene_list"], $_SESSION["panelapp_panel_exclusion_selection"]);
+		
+		if ($gene_list_result === false) {
+			results_page_redirect("cant_determine_exclusion_gene_list");
 		} else {
-			$gene_list_result = determine_gene_list("", $_SESSION["exclusion_gene_list"]);
-			
-			if ($gene_list_result === false) {
-				results_page_redirect("cant_determine_exclusion_gene_list");
-			} else {
-				$_SESSION["gene_list_to_exclude"] = $gene_list_result;
-			}
+			$_SESSION["gene_list_to_exclude"] = $gene_list_result;
 		}
 		
 		if (count($_SESSION["gene_list_to_exclude"]) > 0) { // Only try to validate a gene list if query genes exist
@@ -713,6 +705,7 @@
 		array_push($column_order, "Orphanet Disorders");
 		array_push($column_order, "Is Orphanet AR");
 		array_push($column_order, "Is Orphanet AD");
+		array_push($column_order, "Genomics England PanelApp");
 		array_push($column_order, "ClinVar Variation ID");
 		array_push($column_order, "ClinVar Clinical Significance");
 		array_push($column_order, "ClinVar Trait");

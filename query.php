@@ -79,6 +79,9 @@
 					    	// Extract gene lists from the database
 					    	$gene_lists = fetch_gene_lists();
 					    	
+					    	// Extract GE PanelApp panels from the database
+					    	$ge_panelapp_panels = fetch_panel_counts_ge_panelapp();
+					    	
 					    	#############################################
 							# ONLY SEARCH GENOMIC LOCATIONS
 							#############################################
@@ -123,6 +126,45 @@
 										
 										error("Could not extract gene lists from the database.");
 									}
+								
+								######################
+								
+								echo "<h4>Genomics England PanelApp Panels</h4>";
+								
+								echo "<select name=\"panelapp_panel_selection\" id=\"panelapp_panel_selection\">";
+									echo "<option value=\"None\"";
+									// If no panel has been previously selected, show the default value
+									if (!isset($_SESSION["panelapp_panel_selection"]) || $_SESSION["panelapp_panel_selection"] == "None" || $_SESSION["panelapp_panel_selection"] == "") {
+										echo " selected";
+									}
+									echo ">Click to select a panel</option>";
+									
+									// If PanelApp panels were fetched from the DB
+									if ($ge_panelapp_panels !== false) {
+										foreach (array_keys($ge_panelapp_panels) as $ge_panelapp_panel_name) {
+											foreach (array_keys($ge_panelapp_panels[$ge_panelapp_panel_name]) as $ge_panelapp_confidence) {
+												// Only interested in high and highmoderate evidence levels
+												if (!in_array($ge_panelapp_confidence, array("HighEvidence", "HighModerateEvidence"))) {
+													continue;
+												}
+												
+												echo "<option value=\"".$ge_panelapp_panel_name."-".$ge_panelapp_confidence."\"";
+												if (isset($_SESSION["panelapp_panel_selection"]) && $_SESSION["panelapp_panel_selection"] == $ge_panelapp_panel_name."-".$ge_panelapp_confidence) {
+													echo " selected";
+												}
+												echo ">".$ge_panelapp_panel_name." - ".$ge_panelapp_confidence." (".$ge_panelapp_panels[$ge_panelapp_panel_name][$ge_panelapp_confidence].")</option>";
+											}
+										}
+										
+										echo "</select>";
+									} else {
+										echo "</select>"; // Need to close select in order to print error
+										
+										error("Could not extract GE PanelApp panels from the database.");
+									}
+								echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#panelapp_panel_selection option:selected').removeAttr('selected');\">Clear</p>";
+								
+								######################
 								
 								echo "<h4>Search custom gene list</h4>";
 								
@@ -180,6 +222,45 @@
 										
 										error("Could not extract gene lists from the database.");
 									}
+									
+								######################
+								
+								echo "<h4>Genomics England PanelApp Panels</h4>";
+								
+								echo "<select name=\"panelapp_panel_exclusion_selection\" id=\"panelapp_panel_exclusion_selection\">";
+									echo "<option value=\"None\"";
+									// If no panel has been previously selected, show the default value
+									if (!isset($_SESSION["panelapp_panel_exclusion_selection"]) || $_SESSION["panelapp_panel_exclusion_selection"] == "None" || $_SESSION["panelapp_panel_exclusion_selection"] == "") {
+										echo " selected";
+									}
+									echo ">Click to select a panel</option>";
+									
+									// If PanelApp panels were fetched from the DB
+									if ($ge_panelapp_panels !== false) {
+										foreach (array_keys($ge_panelapp_panels) as $ge_panelapp_panel_name) {
+											foreach (array_keys($ge_panelapp_panels[$ge_panelapp_panel_name]) as $ge_panelapp_confidence) {
+												// Only interested in high and highmoderate evidence levels
+												if (!in_array($ge_panelapp_confidence, array("HighEvidence", "HighModerateEvidence"))) {
+													continue;
+												}
+												
+												echo "<option value=\"".$ge_panelapp_panel_name."-".$ge_panelapp_confidence."\"";
+												if (isset($_SESSION["panelapp_panel_exclusion_selection"]) && $_SESSION["panelapp_panel_exclusion_selection"] == $ge_panelapp_panel_name."-".$ge_panelapp_confidence) {
+													echo " selected";
+												}
+												echo ">".$ge_panelapp_panel_name." - ".$ge_panelapp_confidence." (".$ge_panelapp_panels[$ge_panelapp_panel_name][$ge_panelapp_confidence].")</option>";
+											}
+										}
+										
+										echo "</select>";
+									} else {
+										echo "</select>"; // Need to close select in order to print error
+										
+										error("Could not extract GE PanelApp panels from the database.");
+									}
+								echo "<p style=\"padding: 0em 0.5em 0em 0.5em;\" class=\"button\" onclick=\"$('#panelapp_panel_exclusion_selection option:selected').removeAttr('selected');\">Clear</p>";
+								
+								######################
 								
 								echo "<h4>Exclude custom gene list</h4>";
 								

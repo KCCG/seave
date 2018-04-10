@@ -20,10 +20,9 @@ function clean_session($logout = NULL) {
 	$_SESSION["gbs_family"] = "";
 	$_SESSION["gbs_analysis_type"] = "";
 	$_SESSION["gbs_regions"] = ""; // For the genomic coordinates analysis type
-	$_SESSION["gbs_gene_list_selection"] = ""; // For the gene list(s) analysis type
-	$_SESSION["gbs_gene_list"] = ""; // For the gene list(s) analysis type
-	$_SESSION["gbs_svfusions_gene_list_selection"] = ""; // For the SV Fusions analysis type
-	$_SESSION["gbs_svfusions_gene_list"] = ""; // For the SV Fusions analysis type
+	$_SESSION["gbs_gene_list_selection"] = "";
+	$_SESSION["gbs_gene_list"] = "";
+	$_SESSION["gbs_panelapp_panel_selection"] = "";
 	$_SESSION["gbs_cnlessthan"] = ""; // For most the the analysis types
 	$_SESSION["gbs_cngreaterthan"] = ""; // For most the the analysis types
 	$_SESSION["gbs_minblocksize"] = ""; // For most the the analysis types
@@ -43,6 +42,9 @@ function clean_session($logout = NULL) {
 	// Gene lists selected for inclusion/exclusion from the multi-select box
 	$_SESSION["gene_list_selection"] = "";
 	$_SESSION["gene_list_exclusion_selection"] = "";
+	
+	$_SESSION["panelapp_panel_selection"] = "";
+	$_SESSION["panelapp_panel_exclusion_selection"] = "";
 	
 	// Custom dbsnp columns
 	$_SESSION["dbsnp_columns_exist"] = ""; // For whether the custom dbsnp columns exist
