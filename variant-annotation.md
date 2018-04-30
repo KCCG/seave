@@ -15,7 +15,7 @@ We use VEP and GEMINI in our production pipeline, and the b37d5 (1000 genomes + 
 #### Somatic DNA
 * Our primary somatic variant caller is Strelka2. By default, the VCF files are incompatible with Gemini as they lack the required GT field, and the optional AD, DP, GQ fields, and always name the samples NORMAL and TUMOR.
 * We have a script to post-process Strelka VCF files to make them compatible with Gemini, and provide fields that are useful for Seave.
-* see strelka_add_to_FORMAT.py
+* see [strelka_add_to_FORMAT.py](scripts/strelka_add_to_FORMAT.py).
 
 ### VCF normalisation
 * Gemini (and many other tools) don't handle multi-allelic alleles well, and some variant callers don't properly left-align or normalise the variants.
@@ -24,8 +24,8 @@ We use VEP and GEMINI in our production pipeline, and the b37d5 (1000 genomes + 
 ### VEP
 * We use [Variant Effect Predictor](https://asia.ensembl.org/info/docs/tools/vep/script/vep_download.html) for annotating variants. Seave works well with VEOP v74, v79, v87.
 * There is a newer version of [vep](https://github.com/Ensembl/ensembl-vep) which we have not thoroughly tested, so we recommend using the older [ensembl-tools-vep](https://asia.ensembl.org/info/docs/tools/vep/script/vep_download.html).
-* See ./Makefile.vep87 to install VEP and the required plugins.
-* We do not find the upstream_gene_variant and downstream_gene_variant annotations useful for coding, or regulatory variant analyses, so we delete them. See filter_vep.py.
+* See [Makefile.vep87](scripts/Makefile.vep87) to install VEP and the required plugins.
+* We do not find the upstream_gene_variant and downstream_gene_variant annotations useful for coding, or regulatory variant analyses, so we delete them. See [filter_vep.py](scripts/filter_vep.py).
 
 	/vep/variant_effect_predictor.pl -i ./in/vcfgz/* --species homo_sapiens \
 	  --vcf -o output.vcf --stats_file "$vcfgz_prefix".vep.html \

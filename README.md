@@ -37,6 +37,9 @@ The Seave AMI can be found in 2 AWS regions: Asia Pacific (Sydney) and US East (
 * SQL files required to set up the Seave database schema and scripts to import data from annotation sources into the Seave MySQL annotation databases: https://github.com/KCCG/seave-databases-annotations
 * Seave documentation: https://github.com/KCCG/seave-documentation
 
+# Processing data and Importing into Seave
+See [variant-annotation.md](variant-annotation.md) for a detailed guide on getting data into Seave.
+
 # Seave annotations
 Seave relies on many databases and prediction scores to annotate variants with pathogenicity and allele frequency information. These generously make their data free for research use. If you use any of these annotations to prioritise variants, we ask that you cite the relevant source in your publications.
 
