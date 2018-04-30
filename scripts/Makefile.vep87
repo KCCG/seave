@@ -1,0 +1,63 @@
+SHELL=/bin/bash -e -x
+
+# develop this Makefile in a cloud workstation, as sudo, since this Makefile will be executed as root:
+# dx run kccg:/cloud_workstation -imax_session_length=120 --ssh --yes
+
+.PHONY: all bioperl cpan vep vep_caches test clean
+
+all: bioperl cpan vep vep_caches test
+
+vep:
+	# install vep version 87
+	wget https://github.com/Ensembl/ensembl-tools/archive/release/87.zip
+	unzip 87.zip
+	cd ~/ensembl-tools-release-87/scripts/variant_effect_predictor/ && echo "y" | perl INSTALL.pl -a a -d /usr/share/perl5 1>&2
+	mkdir /vep
+	cp ~/ensembl-tools-release-87/scripts/variant_effect_predictor/*pl /vep 1>&2
+	cp ~/ensembl-tools-release-87/scripts/variant_effect_predictor/*vcf /vep 1>&2
+	cd ~/ensembl-tools-release-87/scripts/variant_effect_predictor/ && echo "y" | perl INSTALL.pl -c /vep -d /usr/share/perl5 -a p -g CADD,LoF,ExAC,dbNSFP 1>&2
+
+vep_caches:
+	cd ~/ensembl-tools-release-87/scripts/variant_effect_predictor/ && echo "y" | perl INSTALL.pl -c /vep -d /usr/share/perl5 -a cf -s homo_sapiens -y GRCh37 1>&2
+	cd ~/ensembl-tools-release-87/scripts/variant_effect_predictor/ && echo "y" | perl INSTALL.pl -c /vep -d /usr/share/perl5 -a cf -s mus_musculus -y GRCm38 1>&2
+
+bioperl:
+	# install bioperl to /usr/share/perl5.
+	# Adding DEBIAN_FRONTEND=noninteractive prior to apt-get avoids the warning found at https://kccg.garvan.org.au/confluence/pages/viewpage.action?spaceKey=CS&title=Creating+an+Asset+bundle under Tips
+	DEBIAN_FRONTEND=noninteractive apt-get update
+	DEBIAN_FRONTEND=noninteractive apt-get install --yes bioperl
+
+cpan:
+	echo -e "\n\n" | cpan
+	# follows the auto installation prompt. 
+	cpan CPAN
+	cpan Test::Base
+	cpan YAML
+	cpan File::Copy::Recursive
+	cpan SUPER
+	cpan Archive::Zip
+	cpan install Bio::Root::Version
+	cpan install Module::Build
+	cpan DBI
+	cpan JSON
+
+test:
+	/vep/variant_effect_predictor.pl -i /vep/example_GRCh37.vcf --species homo_sapiens --offline --fork 2 \
+	  -o example_GRCh37.vep.vcf --vcf \
+	  --fasta /vep/homo_sapiens/87_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz \
+      --hgvs --shift_hgvs 1 --dir /vep
+	# this will download the 100Mb mouse vcf file for which the URL is valid for 2 years from February 2017.
+	# It will validate the test below. Without this, the mouse part of the test will fail as the file doesn't exist.
+	wget -P /vep/ https://dl.dnanex.us/F/D/79VP005p9j3BjxqYBVgYxfBFvFvfK7J80zG4zVj2/Mouse_germline_v_M3768_Tumour_A_TEST.strelka.vcf.gz
+	/vep/variant_effect_predictor.pl -i /vep/Mouse_germline_v_M3768_Tumour_A_TEST.strelka.vcf.gz --species mus_musculus --offline --fork 2 \
+	  -o Mouse_germline_v_M3768_Tumour_A_TEST.strelka.vep.vcf --vcf --fasta /vep/mus_musculus/87_GRCm38/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz \
+      --hgvs --shift_hgvs 1 --dir /vep
+
+# To activate either of the below command type: sudo make clean'
+
+clean:
+	rm -rf /vep
+	rm -f 87.zip
+	rm -rf ~/ensembl-tools-release-87
+	rm -rf ~/.vep
+
