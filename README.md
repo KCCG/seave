@@ -11,9 +11,9 @@ Seave addresses current gaps in existing software and was built to:
 * simple web based system for use by a broad range of researchers and clinicians.
 
 # Seave publication
-We have made a preprint of the Seave publication available on bioRxiv here: https://www.biorxiv.org/content/early/2018/01/31/258061
+Seave has been published in _Bioinformatics_ and can be accessed here: https://doi.org/10.1093/bioinformatics/bty540
 
-We are in the process of publishing Seave in a peer-reviewed journal.
+A comprehensive version of the manuscript was made available as a preprint on bioRxiv here: https://www.biorxiv.org/content/early/2018/01/31/258061
 
 # Seave documentation
 The documentation for Seave is housed in a separate repository and can be accessed via [http://documentation.seave.bio](http://documentation.seave.bio).
